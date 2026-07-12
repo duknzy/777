@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F1 CHEMICAL QUIZ GP</title>
+  <style>
+    /* ==========================================
+       RESET & BASE STYLES (Gothic Font Priority)
+       ========================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+      background-color: #1a1a1a;
+      color: #ffffff;
+      line-height: 1.6;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* ==========================================
+       THEME COLORS & PATTERNS (F1 Motif)
+       ========================================== */
+    :root {
+      --f1-red: #e10600;
+      --carbon-black: #101010;
+      --track-gray: #2a2a2a;
+      --win-green: #00b050;
+    }
+
+    /* チェッカーフラッグ柄の背景アクセント */
+    .chequered-banner {
+      height: 15px;
+      background-image: 
+        linear-gradient(45deg, #000 25%, transparent 25%), 
+        linear-gradient(-45deg, #000 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #000 75%), 
+        linear-gradient(-45deg, transparent 75%, #000 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+      background-color: #fff;
+      border-radius: 8px 8px 0 0;
+    }
+
+    /* ==========================================
+       CONTAINER & CARDS
+       ========================================== */
+    .app-container {
+      width: 100%;
+      max-width: 600px;
+      background-color: var(--carbon-black);
+      border: 2px solid var(--track-gray);
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      overflow: hidden;
+    }
+
+    .screen {
+      padding: 30px 24px;
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==========================================
+       TYPOGRAPHY
+       ========================================== */
+    h1 {
+      font-size: 1.8rem;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #ffffff;
+      margin-bottom: 5px;
+    }
+
+    .sub-title {
+      text-align: center;
+      color: #aaa;
+      font-size: 0.9rem;
+      margin-bottom: 25px;
+    }
+
+    h2 {
+      font-size: 1.3rem;
+      border-left: 5px solid var(--f1-red);
+      padding-left: 10px;
+      margin-bottom: 15px;
+    }
+
+    /* ==========================================
+       COMPONENTS (Form Controls & Buttons)
+       ========================================== */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: var(--f1-red);
+      text-transform: uppercase;
+      font-size: 0.85rem;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--track-gray);
+      border: 1px solid #444;
+      border-radius: 5px;
+      color: #fff;
+      font-size: 1rem;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    select:focus {
+      border-color: var(--f1-red);
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background-color: var(--f1-red);
+      color: white;
+      box-shadow: 0 4px 0 #b00500;
+    }
+
+    .btn-primary:active {
+      transform: translateY(4px);
+      box-shadow: 0 0px 0 #b00500;
+    }
+
+    .btn-secondary {
+      background-color: var(--track-gray);
+      color: white;
+      border: 1px solid #555;
+    }
+
+    .btn-secondary:hover {
+      background-color: #3a3a3a;
+    }
+
+    /* クイズ画面専用：自己申告用ツインボタン */
+    .action-group {
+      display: grid;
+      grid-template-columns: 100%;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .judge-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .btn-correct {
+      background-color: var(--win-green);
+      color: white;
+      box-shadow: 0 4px 0 #00803a;
+    }
+    .btn-correct:active {
+      transform: translateY(4px);
+      box-shadow: 0 0px 0 #00803a;
+    }
+
+    .btn-wrong {
+      background-color: #777;
+      color: white;
+      box-shadow: 0 4px 0 #555;
+    }
+    .btn-wrong:active {
+      transform: translateY(4px);
+      box-shadow: 0 0px 0 #555;
+    }
+
+    /* ==========================================
+       QUIZ SCREEN SPECIFIC
+       ========================================== */
+    .progress-bar {
+      font-size: 0.85rem;
+      color: #888;
+      text-align: right;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+
+    .question-box {
+      background-color: var(--track-gray);
+      padding: 20px;
+      border-radius: 6px;
+      min-height: 100px;
+      margin-bottom: 20px;
+      border-right: 4px solid var(--f1-red);
+      font-size: 1.1rem;
+    }
+
+    /* 解説エリアのアニメーション */
+    .answer-box {
+      background-color: #222;
+      border: 1px dashed #555;
+      padding: 20px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      opacity: 0;
+      transform: scale(0.95);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: none;
+    }
+
+    .answer-box.reveal {
+      display: block;
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .answer-title {
+      color: var(--f1-red);
+      font-weight: bold;
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+    }
+
+    .answer-text {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .comment-text {
+      font-size: 0.95rem;
+      color: #ccc;
+    }
+
+    /* ==========================================
+       RESULT SCREEN SPECIFIC
+       ========================================== */
+    .result-score {
+      text-align: center;
+      margin: 30px 0;
+    }
+
+    .score-number {
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: var(--f1-red);
+      line-height: 1;
+    }
+
+    .score-label {
+      font-size: 1rem;
+      color: #aaa;
+      margin-top: 5px;
+    }
+
+    .stats-table {
+      width: 100%;
+      margin-bottom: 30px;
+      background-color: #222;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 15px;
+      border-bottom: 1px solid var(--track-gray);
+    }
+
+    .stats-row:last-child {
+      border-bottom: none;
+    }
+
+    .stats-val {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- トップの共通飾りライン -->
+    <div class="chequered-banner"></div>
+
+    <!-- 1. スタート画面 -->
+    <div id="start-screen" class="screen active">
+      <h1>Chemical Quiz GP</h1>
+      <div class="sub-title">~ 一問一答スピードマスター ~</div>
+      
+      <div class="form-group">
+        <label for="difficulty-select">1. Select Compound (難易度)</label>
+        <select id="difficulty-select">
+          <option value="soft">SOFT (基礎レベル)</option>
+          <option value="medium" selected>MEDIUM (標準レベル)</option>
+          <option value="hard">HARD (発展レベル)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="sector-select">2. Select Sector (大単元)</label>
+        <select id="sector-select">
+          <!-- JSで動的に選択肢を自動生成します -->
+        </select>
+      </div>
+
+      <button id="start-btn" class="btn btn-primary" style="margin-top: 30px;">Race Start 🏁</button>
+    </div>
+
+    <!-- 2. クイズ画面 -->
+    <div id="quiz-screen" class="screen">
+      <div class="progress-bar">LAP: <span id="current-lap">1</span> / <span id="total-lap">0</span></div>
+      
+      <h2>QUESTION</h2>
+      <div id="question-text" class="question-box">問題文がここに表示されます。</div>
+
+      <!-- 答えを表示ボタン（初期状態） -->
+      <div id="action-area" class="action-group">
+        <button id="view-answer-btn" class="btn btn-primary">View Answer (答えを表示)</button>
+      </div>
+
+      <!-- 解説エリア（ボタンを押したらアニメーション表示） -->
+      <div id="answer-area" class="answer-box">
+        <div class="answer-title">■ 正解</div>
+        <div id="answer-text" class="answer-text">ここに答えが表示されます。</div>
+        <div class="answer-title" style="margin-top: 15px;">■ 解説</div>
+        <div id="comment-text" class="comment-text">ここに解説が表示されます。</div>
+        
+        <!-- 自己申告ボタン -->
+        <div class="judge-group">
+          <button id="correct-btn" class="btn btn-correct">WIN (正解)</button>
+          <button id="wrong-btn" class="btn btn-wrong">SPIN (不正解)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. リザルト画面 -->
+    <div id="result-screen" class="screen">
+      <h1>Chequered Flag!</h1>
+      <div class="sub-title">~ レース終了 ~</div>
+
+      <div class="result-score">
+        <div id="result-rate" class="score-number">0%</div>
+        <div class="score-label">正解率 (SUCCESS RATE)</div>
+      </div>
+
+      <div class="stats-table">
+        <div class="stats-row">
+          <span>選択難易度</span>
+          <span id="res-diff" class="stats-val">-</span>
+        </div>
+        <div class="stats-row">
+          <span>選択セクター</span>
+          <span id="res-sector" class="stats-val">-</span>
+        </div>
+        <div class="stats-row">
+          <span>総問題数</span>
+          <span id="res-total" class="stats-val">-</span>
+        </div>
+        <div class="stats-row">
+          <span>正解数</span>
+          <span id="res-correct" class="stats-val" style="color: var(--win-green);">-</span>
+        </div>
+      </div>
+
+      <button id="back-to-top-btn" class="btn btn-secondary">Return to Pit (トップに戻る)</button>
+    </div>
+
+  </div>
+
+  <!-- ==========================================
+       JAVASCRIPT LOGIC
+       ========================================== -->
+  <!-- 外部のデータファイルを先に読み込む -->
+  <script src="quiz-data.js"></script>
+  
+  <script>
+    /* -------------------------------------------
+       1. 大単元（章）の日本語名称マップ
+       ------------------------------------------- */
+    const chapterNames = {
+      "第1章": "第1章：物質の探究",
+      "第2章": "第2章：物質の構成粒子",
+      "第3章": "第3章：物質と化学結合",
+      "第4章": "第4章：物質量と濃度・溶解度",
+      "第5章": "第5章：化学反応式と量的関係",
+      "第6章": "第6章：酸・塩基",
+      "第7章": "第7章：酸化還元反応",
+      "第8章": "第8章：電池・電気分解",
+      "第9章": "第9章：状態変化とエネルギー",
+      "第10章": "第10章：固体の構造"
+    };
+
+    /* -------------------------------------------
+       2. アプリケーション状態管理 (State)
+       ------------------------------------------- */
+    let currentDifficulty = 'medium';
+    let currentSector = '';
+    let currentQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+
+    /* -------------------------------------------
+       3. DOM要素の取得
+       ------------------------------------------- */
+    const startScreen = document.getElementById('start-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const resultScreen = document.getElementById('result-screen');
+
+    const difficultySelect = document.getElementById('difficulty-select');
+    const sectorSelect = document.getElementById('sector-select');
+    const startBtn = document.getElementById('start-btn');
+
+    const currentLapTxt = document.getElementById('current-lap');
+    const totalLapTxt = document.getElementById('total-lap');
+    const questionText = document.getElementById('question-text');
+    const viewAnswerBtn = document.getElementById('view-answer-btn');
+    const answerArea = document.getElementById('answer-area');
+    const answerText = document.getElementById('answer-text');
+    const commentText = document.getElementById('comment-text');
+    const correctBtn = document.getElementById('correct-btn');
+    const wrongBtn = document.getElementById('wrong-btn');
+
+    const resultRateTxt = document.getElementById('result-rate');
+    const resDiffTxt = document.getElementById('res-diff');
+    const resSectorTxt = document.getElementById('res-sector');
+    const resTotalTxt = document.getElementById('res-total');
+    const resCorrectTxt = document.getElementById('res-correct');
+    const backToTopBtn = document.getElementById('back-to-top-btn');
+
+    /* -------------------------------------------
+       4. ユーティリティ関数（化学式自動下付き変換）
+       ------------------------------------------- */
+    function formatChemicalFormula(text) {
+      if (!text) return "";
+      // 元素記号（大文字アルファベット、または大文字＋小文字）の直後にある数字を<sub>タグで囲む
+      return text.replace(/([A-Z][a-z]?)(\d+)/g, '$1<sub>$2</sub>');
+    }
+
+    /* -------------------------------------------
+       5. イベントリスナー・関数定義
+       ------------------------------------------- */
+
+    // 難易度変更時に、外部データのクイズ群から章タグを自動抽出してメニューを作る関数
+    function updateSectorMenu() {
+      const diff = difficultySelect.value;
+      sectorSelect.innerHTML = '';
+      
+      // グローバル変数 quizQuestions が存在することを確認
+      if (typeof quizQuestions === 'undefined') {
+        const opt = document.createElement('option');
+        opt.textContent = "データファイル未読み込み";
+        sectorSelect.appendChild(opt);
+        return;
+      }
+
+      // 該当する難易度の問題から【第X章】の文字列を抽出してセットに溜める（重複排除）
+      const chapters = new Set();
+      quizQuestions.forEach(q => {
+        if (q.difficulty === diff) {
+          const match = q.question.match(/【(第\d+章)】/);
+          if (match) {
+            chapters.add(match[1]);
+          }
+        }
+      });
+
+      // 先頭に全単元ミックスの選択肢を作成
+      const allOption = document.createElement('option');
+      allOption.value = 'all';
+      allOption.textContent = 'ALL SECTORS (全単元総合GP)';
+      sectorSelect.appendChild(allOption);
+
+      // 抽出した章をソートして選択肢に追加
+      Array.from(chapters).sort((a, b) => {
+        const numA = parseInt(a.match(/\d+/)[0]);
+        const numB = parseInt(b.match(/\d+/)[0]);
+        return numA - numB;
+      }).forEach(ch => {
+        const option = document.createElement('option');
+        option.value = ch;
+        option.textContent = chapterNames[ch] || ch;
+        sectorSelect.appendChild(option);
+      });
+    }
+
+    // 初期起動時および難易度変更時のセクター連動
+    difficultySelect.addEventListener('change', updateSectorMenu);
+    
+    // データ読み込みを考慮して少し安全に初期実行
+    window.addEventListener('DOMContentLoaded', updateSectorMenu);
+
+    // 画面切り替え用関数
+    function switchScreen(targetScreen) {
+      [startScreen, quizScreen, resultScreen].forEach(screen => {
+        screen.classList.remove('active');
+      });
+      targetScreen.classList.add('active');
+    }
+
+    // レース（クイズ）開始
+    startBtn.addEventListener('click', () => {
+      currentDifficulty = difficultySelect.value;
+      currentSector = sectorSelect.value;
+
+      if (typeof quizQuestions === 'undefined') {
+        alert('quiz-data.js が正しく読み込まれていません。');
+        return;
+      }
+
+      // まず指定難易度で絞り込む
+      let filtered = quizQuestions.filter(q => q.difficulty === currentDifficulty);
+      
+      // セクターが 'all' でなければ、さらに特定の章（例：【第1章】）を含むものだけに絞り込む
+      if (currentSector !== 'all') {
+        filtered = filtered.filter(q => q.question.includes(`【${currentSector}】`));
+      }
+
+      currentQuestions = filtered;
+      
+      if (currentQuestions.length === 0) {
+        alert('選択された条件に該当する問題がありません。');
+        return;
+      }
+
+      // 状態を初期化
+      currentIndex = 0;
+      score = 0;
+      
+      // クイズ画面のセットアップ
+      totalLapTxt.textContent = currentQuestions.length;
+      showQuestion();
+      switchScreen(quizScreen);
+    });
+
+    // 問題を表示する関数
+    function showQuestion() {
+      // 表示エリアのリセット
+      answerArea.classList.remove('reveal');
+      viewAnswerBtn.style.display = 'block';
+
+      // データの流し込み（化学式自動下付き変換を通す）
+      const q = currentQuestions[currentIndex];
+      currentLapTxt.textContent = currentIndex + 1;
+      
+      questionText.innerHTML = formatChemicalFormula(q.question);
+      answerText.innerHTML = formatChemicalFormula(q.answer);
+      commentText.innerHTML = formatChemicalFormula(q.comment);
+    }
+
+    // 「答えを表示」ボタンを押したときの処理
+    viewAnswerBtn.addEventListener('click', () => {
+      viewAnswerBtn.style.display = 'none';
+      answerArea.classList.add('reveal');
+    });
+
+    // 「正解（WIN）」ボタンを押したときの処理
+    correctBtn.addEventListener('click', () => {
+      score++;
+      nextStep();
+    });
+
+    // 「不正解（SPIN）」ボタンを押したときの処理
+    wrongBtn.addEventListener('click', () => {
+      nextStep();
+    });
+
+    // 次の問に進むかリザルトに行くかの判定
+    function nextStep() {
+      currentIndex++;
+      if (currentIndex < currentQuestions.length) {
+        showQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    // リザルト画面の表示
+    function showResult() {
+      const total = currentQuestions.length;
+      const rate = Math.round((score / total) * 100);
+
+      // テキスト埋め込み
+      resultRateTxt.textContent = `${rate}%`;
+      resDiffTxt.textContent = currentDifficulty.toUpperCase();
+      
+      let sectorLabel = '全単元総合GP';
+      if (currentSector !== 'all') {
+        sectorLabel = chapterNames[currentSector] || currentSector;
+      }
+      resSectorTxt.textContent = sectorLabel;
+      resTotalTxt.textContent = `${total} 問`;
+      resCorrectTxt.textContent = `${score} 問`;
+
+      switchScreen(resultScreen);
+    }
+
+    // トップに戻るボタンの処理
+    backToTopBtn.addEventListener('click', () => {
+      updateSectorMenu();
+      switchScreen(startScreen);
+    });
+
+  </script>
+</body>
+</html>
