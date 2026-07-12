@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>F1 CHEMICAL QUIZ GP</title>
+  <title>化学マスター：一問一答</title>
   <style>
     /* ==========================================
-       RESET & BASE STYLES (Gothic Font Priority)
+       RESET & BASE STYLES
        ========================================== */
     * {
       box-sizing: border-box;
@@ -15,9 +15,9 @@
     }
 
     body {
-      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
-      background-color: #1a1a1a;
-      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+      background-color: #f0f4f8;
+      color: #1f2937;
       line-height: 1.6;
       padding: 20px;
       min-height: 100vh;
@@ -27,282 +27,337 @@
     }
 
     /* ==========================================
-       THEME COLORS & PATTERNS (F1 Motif)
-       ========================================== */
-    :root {
-      --f1-red: #e10600;
-      --carbon-black: #101010;
-      --track-gray: #2a2a2a;
-      --win-green: #00b050;
-    }
-
-    /* チェッカーフラッグ柄の背景アクセント */
-    .chequered-banner {
-      height: 15px;
-      background-image: 
-        linear-gradient(45deg, #000 25%, transparent 25%), 
-        linear-gradient(-45deg, #000 25%, transparent 25%), 
-        linear-gradient(45deg, transparent 75%, #000 75%), 
-        linear-gradient(-45deg, transparent 75%, #000 75%);
-      background-size: 20px 20px;
-      background-position: 0 0, 0 10px, 10px -10px, -10px 0;
-      background-color: #fff;
-      border-radius: 8px 8px 0 0;
-    }
-
-    /* ==========================================
        CONTAINER & CARDS
        ========================================== */
     .app-container {
       width: 100%;
-      max-width: 600px;
-      background-color: var(--carbon-black);
-      border: 2px solid var(--track-gray);
-      border-radius: 10px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      max-width: 480px;
+      background-color: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.03);
       overflow: hidden;
     }
 
     .screen {
-      padding: 30px 24px;
+      padding: 32px 24px;
       display: none;
     }
 
     .screen.active {
       display: block;
-      animation: fadeIn 0.4s ease-out forwards;
+      animation: fadeIn 0.3s ease-out forwards;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
+      from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==========================================
+       SCREEN HEADERS (Quiz & Results)
+       ========================================== */
+    .screen-header {
+      background-color: #2563eb;
+      color: #ffffff;
+      margin: -32px -24px 24px -24px;
+      padding: 18px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      letter-spacing: 0.5px;
     }
 
     /* ==========================================
        TYPOGRAPHY
        ========================================== */
     h1 {
-      font-size: 1.8rem;
+      font-size: 1.75rem;
       text-align: center;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #ffffff;
-      margin-bottom: 5px;
+      color: #111827;
+      font-weight: 800;
+      margin-bottom: 6px;
     }
 
     .sub-title {
       text-align: center;
-      color: #aaa;
-      font-size: 0.9rem;
-      margin-bottom: 25px;
+      color: #4b5563;
+      font-size: 0.95rem;
+      margin-bottom: 32px;
     }
 
     h2 {
-      font-size: 1.3rem;
-      border-left: 5px solid var(--f1-red);
-      padding-left: 10px;
-      margin-bottom: 15px;
+      font-size: 1.1rem;
+      color: #374151;
+      margin-bottom: 12px;
+      font-weight: 700;
     }
 
     /* ==========================================
-       COMPONENTS (Form Controls & Buttons)
+       FORM CONTROLS (Custom Radio & Select)
        ========================================== */
     .form-group {
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
 
     label {
       display: block;
-      font-weight: bold;
-      margin-bottom: 8px;
-      color: var(--f1-red);
-      text-transform: uppercase;
-      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #374151;
+      font-size: 0.9rem;
     }
 
+    /* 難易度：ボタン型ラジオグループ */
+    .difficulty-radio-group {
+      display: flex;
+      background-color: #f3f4f6;
+      border-radius: 8px;
+      padding: 4px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .difficulty-radio-group input[type="radio"] {
+      display: none;
+    }
+
+    .difficulty-radio-group label {
+      flex: 1;
+      text-align: center;
+      padding: 10px 0;
+      margin-bottom: 0;
+      cursor: pointer;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #6b7280;
+      transition: all 0.2s ease;
+    }
+
+    .difficulty-radio-group input[type="radio"]:checked + label {
+      background-color: #2563eb;
+      color: #ffffff;
+      box-shadow: 0 2px 4px rgba(37, 99, 235, 0.15);
+    }
+
+    /* 単元選択セレクトボックス */
     select {
       width: 100%;
-      padding: 12px;
-      background-color: var(--track-gray);
-      border: 1px solid #444;
-      border-radius: 5px;
-      color: #fff;
-      font-size: 1rem;
+      padding: 12px 16px;
+      background-color: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      color: #1f2937;
+      font-size: 0.95rem;
       font-family: inherit;
       cursor: pointer;
       outline: none;
-      transition: border-color 0.2s;
+      transition: all 0.2s;
     }
 
     select:focus {
-      border-color: var(--f1-red);
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
     }
 
+    /* ==========================================
+       BUTTONS
+       ========================================== */
     .btn {
       display: block;
       width: 100%;
       padding: 14px;
       font-size: 1rem;
-      font-weight: bold;
-      text-transform: uppercase;
+      font-weight: 600;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s ease;
       font-family: inherit;
       text-align: center;
+      text-decoration: none;
     }
 
     .btn-primary {
-      background-color: var(--f1-red);
-      color: white;
-      box-shadow: 0 4px 0 #b00500;
+      background-color: #2563eb;
+      color: #ffffff;
     }
 
-    .btn-primary:active {
-      transform: translateY(4px);
-      box-shadow: 0 0px 0 #b00500;
+    .btn-primary:hover {
+      background-color: #1d4ed8;
     }
 
     .btn-secondary {
-      background-color: var(--track-gray);
-      color: white;
-      border: 1px solid #555;
+      background-color: #ffffff;
+      color: #4b5563;
+      border: 1px solid #d1d5db;
     }
 
     .btn-secondary:hover {
-      background-color: #3a3a3a;
+      background-color: #f9fafb;
+      border-color: #9ca3af;
     }
 
-    /* クイズ画面専用：自己申告用ツインボタン */
+    .btn-dark {
+      background-color: #4b5563;
+      color: #ffffff;
+    }
+
+    .btn-dark:hover {
+      background-color: #374151;
+    }
+
+    /* 自己申告ボタンエリア */
     .action-group {
       display: grid;
       grid-template-columns: 100%;
       gap: 12px;
-      margin-top: 20px;
+      margin-top: 24px;
     }
 
     .judge-group {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 15px;
+      gap: 12px;
       margin-top: 20px;
     }
 
     .btn-correct {
-      background-color: var(--win-green);
-      color: white;
-      box-shadow: 0 4px 0 #00803a;
+      background-color: #10b981;
+      color: #ffffff;
     }
-    .btn-correct:active {
-      transform: translateY(4px);
-      box-shadow: 0 0px 0 #00803a;
+    .btn-correct:hover {
+      background-color: #059669;
     }
 
     .btn-wrong {
-      background-color: #777;
-      color: white;
-      box-shadow: 0 4px 0 #555;
+      background-color: #fef2f2;
+      color: #ef4444;
+      border: 1px solid #fca5a5;
     }
-    .btn-wrong:active {
-      transform: translateY(4px);
-      box-shadow: 0 0px 0 #555;
+    .btn-wrong:hover {
+      background-color: #fee2e2;
     }
 
     /* ==========================================
-       QUIZ SCREEN SPECIFIC
+       QUIZ SCREEN COMPONENTS
        ========================================== */
     .progress-bar {
-      font-size: 0.85rem;
-      color: #888;
-      text-align: right;
-      margin-bottom: 15px;
-      font-weight: bold;
+      font-size: 0.9rem;
+      color: #6b7280;
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: 600;
+      background-color: #f3f4f6;
+      padding: 6px 12px;
+      border-radius: 20px;
+      display: inline-block;
+      position: relative;
+      left: 50%;
+      transform: translateX(-50%);
     }
 
     .question-box {
-      background-color: var(--track-gray);
-      padding: 20px;
-      border-radius: 6px;
+      background-color: #f8fafc;
+      padding: 24px;
+      border-radius: 12px;
       min-height: 100px;
-      margin-bottom: 20px;
-      border-right: 4px solid var(--f1-red);
-      font-size: 1.1rem;
+      margin-bottom: 24px;
+      border-left: 5px solid #2563eb;
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: #1f2937;
     }
 
-    /* 解説エリアのアニメーション */
+    /* 解説エリア */
     .answer-box {
-      background-color: #222;
-      border: 1px dashed #555;
-      padding: 20px;
-      border-radius: 6px;
-      margin-bottom: 20px;
-      opacity: 0;
-      transform: scale(0.95);
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      background-color: #ffffff;
+      border: 1px solid #e5e7eb;
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
       display: none;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
     }
 
     .answer-box.reveal {
       display: block;
       opacity: 1;
-      transform: scale(1);
+      transform: translateY(0);
+    }
+
+    .answer-section {
+      margin-bottom: 16px;
+    }
+
+    .answer-section:last-of-type {
+      margin-bottom: 0;
     }
 
     .answer-title {
-      color: var(--f1-red);
-      font-weight: bold;
-      margin-bottom: 5px;
-      font-size: 0.9rem;
-      text-transform: uppercase;
+      font-weight: 700;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
+    .title-correct { color: #10b981; }
+    .title-comment { color: #f59e0b; }
+
     .answer-text {
-      font-size: 1.2rem;
-      font-weight: bold;
-      margin-bottom: 10px;
-      color: #fff;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #111827;
+      padding-left: 12px;
     }
 
     .comment-text {
       font-size: 0.95rem;
-      color: #ccc;
+      color: #4b5563;
+      padding-left: 12px;
     }
 
     /* ==========================================
-       RESULT SCREEN SPECIFIC
+       RESULT SCREEN COMPONENTS
        ========================================== */
     .result-score {
       text-align: center;
-      margin: 30px 0;
+      margin: 24px 0 32px 0;
     }
 
     .score-number {
       font-size: 3.5rem;
-      font-weight: 900;
-      color: var(--f1-red);
+      font-weight: 800;
+      color: #2563eb;
       line-height: 1;
     }
 
     .score-label {
-      font-size: 1rem;
-      color: #aaa;
-      margin-top: 5px;
+      font-size: 0.95rem;
+      color: #6b7280;
+      margin-top: 8px;
+      font-weight: 600;
     }
 
     .stats-table {
       width: 100%;
-      margin-bottom: 30px;
-      background-color: #222;
-      border-radius: 6px;
-      overflow: hidden;
+      margin-bottom: 32px;
+      background-color: #f8fafc;
+      border-radius: 12px;
+      padding: 8px 16px;
     }
 
     .stats-row {
       display: flex;
       justify-content: space-between;
-      padding: 12px 15px;
-      border-bottom: 1px solid var(--track-gray);
+      padding: 14px 0;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 0.95rem;
+      color: #4b5563;
     }
 
     .stats-row:last-child {
@@ -310,85 +365,93 @@
     }
 
     .stats-val {
-      font-weight: bold;
+      font-weight: 700;
+      color: #111827;
     }
   </style>
 </head>
 <body>
 
   <div class="app-container">
-    <!-- トップの共通飾りライン -->
-    <div class="chequered-banner"></div>
 
     <!-- 1. スタート画面 -->
     <div id="start-screen" class="screen active">
-      <h1>Chemical Quiz GP</h1>
-      <div class="sub-title">~ 一問一答スピードマスター ~</div>
+      <h1>化学マスター：一問一答</h1>
+      <div class="sub-title">基礎から発展まで、スピード学習</div>
       
       <div class="form-group">
-        <label for="difficulty-select">1. Select Compound (難易度)</label>
-        <select id="difficulty-select">
-          <option value="soft">SOFT (基礎レベル)</option>
-          <option value="medium" selected>MEDIUM (標準レベル)</option>
-          <option value="hard">HARD (発展レベル)</option>
-        </select>
+        <label>1. 難易度を選択してください</label>
+        <div class="difficulty-radio-group">
+          <input type="radio" id="diff-soft" name="difficulty" value="soft">
+          <label for="diff-soft">SOFT</label>
+          <input type="radio" id="diff-medium" name="difficulty" value="medium" checked>
+          <label for="diff-medium">MEDIUM</label>
+          <input type="radio" id="diff-hard" name="difficulty" value="hard">
+          <label for="diff-hard">HARD</label>
+        </div>
       </div>
 
       <div class="form-group">
-        <label for="sector-select">2. Select Sector (大単元)</label>
+        <label for="sector-select">2. 単元を選択してください</label>
         <select id="sector-select">
-          <!-- JSで動的に選択肢を自動生成します -->
+          <!-- JSで動的に選択肢を自動生成 -->
         </select>
       </div>
 
-      <button id="start-btn" class="btn btn-primary" style="margin-top: 30px;">Race Start 🏁</button>
+      <button id="start-btn" class="btn btn-primary" style="margin-top: 32px;">クイズを開始</button>
     </div>
 
     <!-- 2. クイズ画面 -->
     <div id="quiz-screen" class="screen">
-      <div class="progress-bar">LAP: <span id="current-lap">1</span> / <span id="total-lap">0</span></div>
+      <div class="screen-header">Quiz</div>
+      <div class="progress-bar">問題: <span id="current-lap">1</span> / <span id="total-lap">0</span></div>
       
       <h2>QUESTION</h2>
       <div id="question-text" class="question-box">問題文がここに表示されます。</div>
 
       <!-- 答えを表示ボタン（初期状態） -->
       <div id="action-area" class="action-group">
-        <button id="view-answer-btn" class="btn btn-primary">View Answer (答えを表示)</button>
+        <button id="view-answer-btn" class="btn btn-primary">答えを表示</button>
       </div>
 
-      <!-- 解説エリア（ボタンを押したらアニメーション表示） -->
+      <!-- 解説エリア（ボタンを押したら表示） -->
       <div id="answer-area" class="answer-box">
-        <div class="answer-title">■ 正解</div>
-        <div id="answer-text" class="answer-text">ここに答えが表示されます。</div>
-        <div class="answer-title" style="margin-top: 15px;">■ 解説</div>
-        <div id="comment-text" class="comment-text">ここに解説が表示されます。</div>
+        <div class="answer-section">
+          <div class="answer-title title-correct">■ 正解</div>
+          <div id="answer-text" class="answer-text">ここに答えが表示されます。</div>
+        </div>
+        <div class="answer-section">
+          <div class="answer-title title-comment">■ 解説</div>
+          <div id="comment-text" class="comment-text">ここに解説が表示されます。</div>
+        </div>
         
         <!-- 自己申告ボタン -->
         <div class="judge-group">
-          <button id="correct-btn" class="btn btn-correct">WIN (正解)</button>
-          <button id="wrong-btn" class="btn btn-wrong">SPIN (不正解)</button>
+          <button id="correct-btn" class="btn btn-correct">正解した</button>
+          <button id="wrong-btn" class="btn btn-wrong">間違えた</button>
         </div>
       </div>
-      <button id="retire-btn" class="btn btn-secondary" style="margin-top: 30px;">RETIRE (レースを中断してピットに戻る)</button>
+      <button id="retire-btn" class="btn btn-dark" style="margin-top: 32px;">クイズを終了してトップに戻る</button>
     </div>
 
     <!-- 3. リザルト画面 -->
     <div id="result-screen" class="screen">
-      <h1>Chequered Flag!</h1>
-      <div class="sub-title">~ レース終了 ~</div>
+      <div class="screen-header">Results</div>
+      <h1>クイズ完了</h1>
+      <div class="sub-title">おつかれさまでした</div>
 
       <div class="result-score">
         <div id="result-rate" class="score-number">0%</div>
-        <div class="score-label">正解率 (SUCCESS RATE)</div>
+        <div class="score-label">正解率</div>
       </div>
 
       <div class="stats-table">
         <div class="stats-row">
-          <span>選択難易度</span>
+          <span>難易度</span>
           <span id="res-diff" class="stats-val">-</span>
         </div>
         <div class="stats-row">
-          <span>選択セクター</span>
+          <span>単元</span>
           <span id="res-sector" class="stats-val">-</span>
         </div>
         <div class="stats-row">
@@ -397,19 +460,18 @@
         </div>
         <div class="stats-row">
           <span>正解数</span>
-          <span id="res-correct" class="stats-val" style="color: var(--win-green);">-</span>
+          <span id="res-correct" class="stats-val" style="color: #10b981;">-</span>
         </div>
       </div>
 
-      <button id="back-to-top-btn" class="btn btn-secondary">Return to Pit (トップに戻る)</button>
+      <button id="back-to-top-btn" class="btn btn-primary">トップに戻る</button>
     </div>
 
   </div>
 
   <!-- ==========================================
        JAVASCRIPT LOGIC
-       ========================================== -->
-  <!-- 外部のデータファイルを先に読み込む -->
+       ========================================== */ -->
   <script src="quiz-data.js"></script>
   
   <script>
@@ -445,7 +507,6 @@
     const quizScreen = document.getElementById('quiz-screen');
     const resultScreen = document.getElementById('result-screen');
 
-    const difficultySelect = document.getElementById('difficulty-select');
     const sectorSelect = document.getElementById('sector-select');
     const startBtn = document.getElementById('start-btn');
 
@@ -458,7 +519,7 @@
     const commentText = document.getElementById('comment-text');
     const correctBtn = document.getElementById('correct-btn');
     const wrongBtn = document.getElementById('wrong-btn');
-    const retireBtn = document.getElementById('retire-btn'); // 👈 これを追加！
+    const retireBtn = document.getElementById('retire-btn');
 
     const resultRateTxt = document.getElementById('result-rate');
     const resDiffTxt = document.getElementById('res-diff');
@@ -468,24 +529,28 @@
     const backToTopBtn = document.getElementById('back-to-top-btn');
 
     /* -------------------------------------------
-       4. ユーティリティ関数（化学式自動下付き変換）
+       4. 選択されている難易度（ラジオボタン）の取得ヘルパー
+       ------------------------------------------- */
+    function getSelectedDifficulty() {
+      return document.querySelector('input[name="difficulty"]:checked').value;
+    }
+
+    /* -------------------------------------------
+       5. ユーティリティ関数（化学式自動下付き変換）
        ------------------------------------------- */
     function formatChemicalFormula(text) {
       if (!text) return "";
-      // 元素記号（大文字アルファベット、または大文字＋小文字）の直後にある数字を<sub>タグで囲む
       return text.replace(/([A-Z][a-z]?)(\d+)/g, '$1<sub>$2</sub>');
     }
 
     /* -------------------------------------------
-       5. イベントリスナー・関数定義
+       6. イベントリスナー・関数定義
        ------------------------------------------- */
 
-    // 難易度変更時に、外部データのクイズ群から章タグを自動抽出してメニューを作る関数
     function updateSectorMenu() {
-      const diff = difficultySelect.value;
+      const diff = getSelectedDifficulty();
       sectorSelect.innerHTML = '';
       
-      // グローバル変数 quizQuestions が存在することを確認
       if (typeof quizQuestions === 'undefined') {
         const opt = document.createElement('option');
         opt.textContent = "データファイル未読み込み";
@@ -493,7 +558,6 @@
         return;
       }
 
-      // 該当する難易度の問題から【第X章】の文字列を抽出してセットに溜める（重複排除）
       const chapters = new Set();
       quizQuestions.forEach(q => {
         if (q.difficulty === diff) {
@@ -504,13 +568,11 @@
         }
       });
 
-      // 先頭に全単元ミックスの選択肢を作成
       const allOption = document.createElement('option');
       allOption.value = 'all';
-      allOption.textContent = 'ALL SECTORS (全単元総合GP)';
+      allOption.textContent = 'すべての単元から出題';
       sectorSelect.appendChild(allOption);
 
-      // 抽出した章をソートして選択肢に追加
       Array.from(chapters).sort((a, b) => {
         const numA = parseInt(a.match(/\d+/)[0]);
         const numB = parseInt(b.match(/\d+/)[0]);
@@ -523,13 +585,13 @@
       });
     }
 
-    // 初期起動時および難易度変更時のセクター連動
-    difficultySelect.addEventListener('change', updateSectorMenu);
+    // 難易度（ラジオボタン）変更時にセクターを連動
+    document.querySelectorAll('input[name="difficulty"]').forEach(radio => {
+      radio.addEventListener('change', updateSectorMenu);
+    });
     
-    // データ読み込みを考慮して少し安全に初期実行
     window.addEventListener('DOMContentLoaded', updateSectorMenu);
 
-    // 画面切り替え用関数
     function switchScreen(targetScreen) {
       [startScreen, quizScreen, resultScreen].forEach(screen => {
         screen.classList.remove('active');
@@ -537,9 +599,9 @@
       targetScreen.classList.add('active');
     }
 
-    // レース（クイズ）開始
+    // クイズ開始
     startBtn.addEventListener('click', () => {
-      currentDifficulty = difficultySelect.value;
+      currentDifficulty = getSelectedDifficulty();
       currentSector = sectorSelect.value;
 
       if (typeof quizQuestions === 'undefined') {
@@ -547,10 +609,8 @@
         return;
       }
 
-      // まず指定難易度で絞り込む
       let filtered = quizQuestions.filter(q => q.difficulty === currentDifficulty);
       
-      // セクターが 'all' でなければ、さらに特定の章（例：【第1章】）を含むものだけに絞り込む
       if (currentSector !== 'all') {
         filtered = filtered.filter(q => q.question.includes(`【${currentSector}】`));
       }
@@ -562,23 +622,18 @@
         return;
       }
 
-      // 状態を初期化
       currentIndex = 0;
       score = 0;
       
-      // クイズ画面のセットアップ
       totalLapTxt.textContent = currentQuestions.length;
       showQuestion();
       switchScreen(quizScreen);
     });
 
-    // 問題を表示する関数
     function showQuestion() {
-      // 表示エリアのリセット
       answerArea.classList.remove('reveal');
       viewAnswerBtn.style.display = 'block';
 
-      // データの流し込み（化学式自動下付き変換を通す）
       const q = currentQuestions[currentIndex];
       currentLapTxt.textContent = currentIndex + 1;
       
@@ -587,24 +642,20 @@
       commentText.innerHTML = formatChemicalFormula(q.comment);
     }
 
-    // 「答えを表示」ボタンを押したときの処理
     viewAnswerBtn.addEventListener('click', () => {
       viewAnswerBtn.style.display = 'none';
       answerArea.classList.add('reveal');
     });
 
-    // 「正解（WIN）」ボタンを押したときの処理
     correctBtn.addEventListener('click', () => {
       score++;
       nextStep();
     });
 
-    // 「不正解（SPIN）」ボタンを押したときの処理
     wrongBtn.addEventListener('click', () => {
       nextStep();
     });
 
-    // 次の問に進むかリザルトに行くかの判定
     function nextStep() {
       currentIndex++;
       if (currentIndex < currentQuestions.length) {
@@ -614,16 +665,14 @@
       }
     }
 
-    // リザルト画面の表示
     function showResult() {
       const total = currentQuestions.length;
       const rate = Math.round((score / total) * 100);
 
-      // テキスト埋め込み
       resultRateTxt.textContent = `${rate}%`;
       resDiffTxt.textContent = currentDifficulty.toUpperCase();
       
-      let sectorLabel = '全単元総合GP';
+      let sectorLabel = 'すべての単元';
       if (currentSector !== 'all') {
         sectorLabel = chapterNames[currentSector] || currentSector;
       }
@@ -634,22 +683,18 @@
       switchScreen(resultScreen);
     }
 
-    // トップに戻るボタンの処理
     backToTopBtn.addEventListener('click', () => {
       updateSectorMenu();
       switchScreen(startScreen);
     });
 
     retireBtn.addEventListener('click', () => {
-      // 誤タップ対策の確認アラート
-      const resetConfirm = confirm('本当にレースを中断してピットに戻りますか？\n（現在までのラップ記録は破棄されます）');
-      
+      const resetConfirm = confirm('本当にクイズを中断してトップに戻りますか？\n（これまでの学習記録は破棄されます）');
       if (resetConfirm) {
-        updateSectorMenu();       // セクターメニューを初期化
-        switchScreen(startScreen); // スタート画面へ戻る
+        updateSectorMenu();
+        switchScreen(startScreen);
       }
     });
-
   </script>
 </body>
 </html>
