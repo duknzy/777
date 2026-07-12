@@ -369,6 +369,7 @@
           <button id="wrong-btn" class="btn btn-wrong">SPIN (不正解)</button>
         </div>
       </div>
+      <button id="retire-btn" class="btn btn-secondary" style="margin-top: 30px;">RETIRE (レースを中断してピットに戻る)</button>
     </div>
 
     <!-- 3. リザルト画面 -->
@@ -457,6 +458,7 @@
     const commentText = document.getElementById('comment-text');
     const correctBtn = document.getElementById('correct-btn');
     const wrongBtn = document.getElementById('wrong-btn');
+    const retireBtn = document.getElementById('retire-btn'); // 👈 これを追加！
 
     const resultRateTxt = document.getElementById('result-rate');
     const resDiffTxt = document.getElementById('res-diff');
@@ -636,6 +638,16 @@
     backToTopBtn.addEventListener('click', () => {
       updateSectorMenu();
       switchScreen(startScreen);
+    });
+
+    retireBtn.addEventListener('click', () => {
+      // 誤タップ対策の確認アラート
+      const resetConfirm = confirm('本当にレースを中断してピットに戻りますか？\n（現在までのラップ記録は破棄されます）');
+      
+      if (resetConfirm) {
+        updateSectorMenu();       // セクターメニューを初期化
+        switchScreen(startScreen); // スタート画面へ戻る
+      }
     });
 
   </script>
