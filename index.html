@@ -3,11 +3,51 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>化学マスター：一問一答</title>
+  <title>化学マスター：一問一答＆暗記単語帳</title>
+  
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- KaTeX CSS & JS for Beautiful Math Rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
   <style>
     /* ==========================================
-       RESET & BASE STYLES
+       DESIGN SYSTEM & CSS VARIABLES
        ========================================== */
+    :root {
+      --bg-dark: #0f172a;
+      --bg-card: rgba(30, 41, 59, 0.7);
+      --bg-card-border: rgba(255, 255, 255, 0.1);
+      --primary: #3b82f6;
+      --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      --accent-cyan: #06b6d4;
+      --accent-purple: #8b5cf6;
+      --accent-gradient: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%);
+      --success: #10b981;
+      --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dark: #1e293b;
+      --soft-bg: rgba(59, 130, 246, 0.12);
+      --medium-bg: rgba(245, 158, 11, 0.12);
+      --hard-bg: rgba(239, 68, 68, 0.12);
+      --soft-color: #60a5fa;
+      --medium-color: #fbbf24;
+      --hard-color: #f87171;
+      --radius-lg: 20px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --shadow-glow: 0 10px 30px -10px rgba(59, 130, 246, 0.3);
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -15,685 +55,1747 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
-      background-color: #f0f4f8;
-      color: #1f2937;
-      line-height: 1.6;
-      padding: 20px;
+      font-family: 'Plus Jakarta Sans', 'Noto Sans JP', sans-serif;
+      background: #090d16;
+      background-image: 
+        radial-gradient(at 10% 10%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 90% 90%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(6, 182, 212, 0.1) 0px, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-main);
       min-height: 100vh;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
+      padding: 12px;
+    }
+
+    sub, sup {
+      font-size: 0.75em;
+      line-height: 0;
+      position: relative;
+      vertical-align: baseline;
+    }
+    sub { bottom: -0.25em; }
+    sup { top: -0.5em; }
+
+    .katex {
+      font-size: 1.1em !important;
     }
 
     /* ==========================================
-       CONTAINER & CARDS
+       APP CONTAINER & HEADER
        ========================================== */
-    .app-container {
+    .app-wrapper {
       width: 100%;
-      max-width: 480px;
-      background-color: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.03);
+      max-width: 620px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    header.app-header {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--accent-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: white;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .brand-text h1 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(to right, #ffffff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-text p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .icon-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    /* ==========================================
+       TAB NAVIGATION
+       ========================================== */
+    .tab-nav {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-md);
+      padding: 6px;
+      gap: 4px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 10px 4px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .tab-btn i {
+      font-size: 1rem;
+    }
+
+    .tab-btn.active {
+      background: var(--primary-gradient);
+      color: #ffffff;
+      box-shadow: var(--shadow-glow);
+    }
+
+    /* ==========================================
+       VIEW CARDS & SCREENS
+       ========================================== */
+    .content-area {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      min-height: 520px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+      position: relative;
       overflow: hidden;
     }
 
-    .screen {
-      padding: 32px 24px;
+    .tab-content {
       display: none;
+      animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    .screen.active {
+    .tab-content.active {
       display: block;
-      animation: fadeIn 0.3s ease-out forwards;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
+      from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* ==========================================
-       SCREEN HEADERS (Quiz & Results)
-       ========================================== */
-    .screen-header {
-      background-color: #2563eb;
-      color: #ffffff;
-      margin: -32px -24px 24px -24px;
-      padding: 18px;
-      text-align: center;
-      font-weight: 700;
-      font-size: 1.2rem;
-      letter-spacing: 0.5px;
-    }
-
-    /* ==========================================
-       TYPOGRAPHY
-       ========================================== */
-    h1 {
-      font-size: 1.75rem;
-      text-align: center;
-      color: #111827;
+    /* SECTION TITLES & FORM CONTROLS */
+    .section-title {
+      font-size: 1.25rem;
       font-weight: 800;
       margin-bottom: 6px;
-    }
-
-    .sub-title {
-      text-align: center;
-      color: #4b5563;
-      font-size: 0.95rem;
-      margin-bottom: 32px;
-    }
-
-    h2 {
-      font-size: 1.1rem;
-      color: #374151;
-      margin-bottom: 12px;
-      font-weight: 700;
-    }
-
-    /* ==========================================
-       FORM CONTROLS (Custom Radio & Select)
-       ========================================== */
-    .form-group {
-      margin-bottom: 24px;
-    }
-
-    label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 10px;
-      color: #374151;
-      font-size: 0.9rem;
-    }
-
-    /* 難易度：ボタン型ラジオグループ */
-    .difficulty-radio-group {
       display: flex;
-      background-color: #f3f4f6;
-      border-radius: 8px;
-      padding: 4px;
-      border: 1px solid #e5e7eb;
+      align-items: center;
+      gap: 8px;
     }
 
-    .difficulty-radio-group input[type="radio"] {
+    .section-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      margin-bottom: 8px;
+    }
+
+    select, input[type="text"] {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    select:focus, input[type="text"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    }
+
+    .radio-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+      gap: 8px;
+    }
+
+    .radio-grid input[type="radio"] {
       display: none;
     }
 
-    .difficulty-radio-group label {
-      flex: 1;
+    .radio-grid label {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-sm);
+      padding: 10px;
       text-align: center;
-      padding: 10px 0;
-      margin-bottom: 0;
-      cursor: pointer;
-      border-radius: 6px;
-      font-weight: 700;
       font-size: 0.85rem;
-      color: #6b7280;
-      transition: all 0.2s ease;
-    }
-
-    .difficulty-radio-group input[type="radio"]:checked + label {
-      background-color: #2563eb;
-      color: #ffffff;
-      box-shadow: 0 2px 4px rgba(37, 99, 235, 0.15);
-    }
-
-    /* 単元選択セレクトボックス */
-    select {
-      width: 100%;
-      padding: 12px 16px;
-      background-color: #ffffff;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      color: #1f2937;
-      font-size: 0.95rem;
-      font-family: inherit;
+      font-weight: 700;
       cursor: pointer;
-      outline: none;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
+      color: var(--text-muted);
     }
 
-    select:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    .radio-grid input[type="radio"]:checked + label {
+      background: var(--primary-gradient);
+      border-color: var(--primary);
+      color: #ffffff;
+      box-shadow: var(--shadow-glow);
     }
 
-    /* ==========================================
-       BUTTONS
-       ========================================== */
+    /* BUTTONS */
     .btn {
-      display: block;
       width: 100%;
       padding: 14px;
-      font-size: 1rem;
-      font-weight: 600;
+      border-radius: var(--radius-md);
       border: none;
-      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       font-family: inherit;
-      text-align: center;
       text-decoration: none;
     }
 
     .btn-primary {
-      background-color: #2563eb;
+      background: var(--accent-gradient);
       color: #ffffff;
+      box-shadow: var(--shadow-glow);
     }
 
     .btn-primary:hover {
-      background-color: #1d4ed8;
+      transform: translateY(-2px);
+      filter: brightness(1.1);
     }
 
     .btn-secondary {
-      background-color: #ffffff;
-      color: #4b5563;
-      border: 1px solid #d1d5db;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border: 1px solid rgba(255, 255, 255, 0.12);
     }
 
     .btn-secondary:hover {
-      background-color: #f9fafb;
-      border-color: #9ca3af;
+      background: rgba(255, 255, 255, 0.15);
     }
 
-    .btn-dark {
-      background-color: #4b5563;
+    .btn-success {
+      background: var(--success-gradient);
       color: #ffffff;
     }
 
-    .btn-dark:hover {
-      background-color: #374151;
-    }
-
-    /* 自己申告ボタンエリア */
-    .action-group {
-      display: grid;
-      grid-template-columns: 100%;
-      gap: 12px;
-      margin-top: 24px;
-    }
-
-    .judge-group {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    .btn-correct {
-      background-color: #10b981;
+    .btn-danger {
+      background: var(--danger-gradient);
       color: #ffffff;
-    }
-    .btn-correct:hover {
-      background-color: #059669;
-    }
-
-    .btn-wrong {
-      background-color: #fef2f2;
-      color: #ef4444;
-      border: 1px solid #fca5a5;
-    }
-    .btn-wrong:hover {
-      background-color: #fee2e2;
     }
 
     /* ==========================================
-       QUIZ SCREEN COMPONENTS
+       1. QUIZ MODE STYLES
        ========================================== */
-    .progress-bar {
-      font-size: 0.9rem;
-      color: #6b7280;
-      text-align: center;
+    .quiz-progress-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
       margin-bottom: 20px;
-      font-weight: 600;
-      background-color: #f3f4f6;
-      padding: 6px 12px;
-      border-radius: 20px;
-      display: inline-block;
-      position: relative;
-      left: 50%;
-      transform: translateX(-50%);
     }
 
-    .question-box {
-      background-color: #f8fafc;
-      padding: 24px;
-      border-radius: 12px;
-      min-height: 100px;
-      margin-bottom: 24px;
-      border-left: 5px solid #2563eb;
-      font-size: 1.05rem;
-      font-weight: 500;
-      color: #1f2937;
+    .quiz-progress-fill {
+      height: 100%;
+      background: var(--accent-gradient);
+      width: 0%;
+      transition: width 0.3s ease;
     }
 
-    /* 解説エリア */
-    .answer-box {
-      background-color: #ffffff;
-      border: 1px solid #e5e7eb;
-      padding: 24px;
-      border-radius: 12px;
-      margin-bottom: 24px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-      display: none;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: all 0.3s ease;
-    }
-
-    .answer-box.reveal {
-      display: block;
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .answer-section {
+    .quiz-header-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 16px;
     }
 
-    .answer-section:last-of-type {
-      margin-bottom: 0;
-    }
-
-    .answer-title {
-      font-weight: 700;
-      font-size: 0.85rem;
-      margin-bottom: 6px;
-      display: flex;
+    .tag-badge {
+      display: inline-flex;
       align-items: center;
       gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
     }
 
-    .title-correct { color: #10b981; }
-    .title-comment { color: #f59e0b; }
+    .tag-soft { background: var(--soft-bg); color: var(--soft-color); border: 1px solid rgba(96, 165, 250, 0.3); }
+    .tag-medium { background: var(--medium-bg); color: var(--medium-color); border: 1px solid rgba(251, 191, 36, 0.3); }
+    .tag-hard { background: var(--hard-bg); color: var(--hard-color); border: 1px solid rgba(248, 113, 113, 0.3); }
 
-    .answer-text {
-      font-size: 1.25rem;
+    .question-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      min-height: 120px;
+      font-size: 1.05rem;
       font-weight: 700;
-      color: #111827;
-      padding-left: 12px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .star-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: transparent;
+      border: none;
+      color: #64748b;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .star-btn.active {
+      color: #f59e0b;
+    }
+
+    .answer-box {
+      background: rgba(30, 41, 59, 0.9);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 20px;
+      display: none;
+      animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .answer-box.active {
+      display: block;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .ans-label {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--accent-cyan);
+      margin-bottom: 4px;
+    }
+
+    .ans-text {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .comment-label {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--warning);
+      margin-bottom: 4px;
     }
 
     .comment-text {
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    .choices-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .choice-btn {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      color: var(--text-main);
       font-size: 0.95rem;
-      color: #4b5563;
-      padding-left: 12px;
+      font-weight: 700;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    /* ==========================================
-       RESULT SCREEN COMPONENTS
-       ========================================== */
-    .result-score {
+    .choice-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+      background: rgba(59, 130, 246, 0.15);
+    }
+
+    .choice-btn.correct {
+      background: rgba(16, 185, 129, 0.2) !important;
+      border-color: var(--success) !important;
+      color: #a7f3d0 !important;
+    }
+
+    .choice-btn.wrong {
+      background: rgba(239, 68, 68, 0.2) !important;
+      border-color: var(--danger) !important;
+      color: #fca5a5 !important;
+    }
+
+    /* RESULT SCREEN */
+    .result-display {
       text-align: center;
-      margin: 24px 0 32px 0;
+      padding: 20px 0;
     }
 
-    .score-number {
-      font-size: 3.5rem;
+    .result-score-circle {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: var(--accent-gradient);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px auto;
+      box-shadow: 0 10px 40px rgba(6, 182, 212, 0.4);
+    }
+
+    .score-num {
+      font-size: 2.8rem;
       font-weight: 800;
-      color: #2563eb;
       line-height: 1;
     }
 
-    .score-label {
-      font-size: 0.95rem;
-      color: #6b7280;
-      margin-top: 8px;
-      font-weight: 600;
+    .score-unit {
+      font-size: 0.8rem;
+      font-weight: 700;
+      opacity: 0.8;
     }
 
-    .stats-table {
+    /* ==========================================
+       2. FLASHCARD MODE STYLES
+       ========================================== */
+    .flashcard-container {
+      perspective: 1000px;
       width: 100%;
-      margin-bottom: 32px;
-      background-color: #f8fafc;
-      border-radius: 12px;
-      padding: 8px 16px;
+      height: 280px;
+      margin-bottom: 20px;
+      cursor: pointer;
     }
 
-    .stats-row {
+    .flashcard-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transform-style: preserve-3d;
+    }
+
+    .flashcard-container.flipped .flashcard-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    }
+
+    .card-front {
+      background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+    }
+
+    .card-back {
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(30, 58, 138, 0.9));
+      transform: rotateY(180deg);
+    }
+
+    .card-hint {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--accent-cyan);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    /* ==========================================
+       3. DICTIONARY & SEARCH STYLES
+       ========================================== */
+    .search-box {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .search-box input {
+      padding-left: 44px;
+    }
+
+    .dict-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .dict-item {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      transition: all 0.2s ease;
+    }
+
+    .dict-item:hover {
+      border-color: rgba(59, 130, 246, 0.4);
+      background: rgba(15, 23, 42, 0.85);
+    }
+
+    .dict-header {
       display: flex;
       justify-content: space-between;
-      padding: 14px 0;
-      border-bottom: 1px solid #e2e8f0;
-      font-size: 0.95rem;
-      color: #4b5563;
+      align-items: center;
+      margin-bottom: 8px;
     }
 
-    .stats-row:last-child {
-      border-bottom: none;
+    .dict-ans {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 4px;
     }
 
-    .stats-val {
+    .dict-q {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      line-height: 1.4;
+    }
+
+    /* ==========================================
+       4. DASHBOARD & STATS STYLES
+       ========================================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat-val {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--accent-cyan);
+      line-height: 1.2;
+    }
+
+    .stat-lbl {
+      font-size: 0.75rem;
+      color: var(--text-muted);
       font-weight: 700;
-      color: #111827;
+      margin-top: 4px;
+    }
+
+    .ch-progress-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ch-prog-item {
+      font-size: 0.8rem;
+    }
+
+    .ch-prog-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    .ch-prog-bar {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .ch-prog-fill {
+      height: 100%;
+      background: var(--accent-gradient);
+      width: 0%;
+      border-radius: 10px;
+      transition: width 0.4s ease;
     }
   </style>
 </head>
 <body>
 
-  <div class="app-container">
-
-    <!-- 1. スタート画面 -->
-    <div id="start-screen" class="screen active">
-      <h1>化学マスター：一問一答</h1>
-      <div class="sub-title">基礎から発展まで、スピード学習</div>
-      
-      <div class="form-group">
-        <label>1. 難易度を選択してください</label>
-        <div class="difficulty-radio-group">
-          <input type="radio" id="diff-soft" name="difficulty" value="soft">
-          <label for="diff-soft">SOFT</label>
-          <input type="radio" id="diff-medium" name="difficulty" value="medium" checked>
-          <label for="diff-medium">MEDIUM</label>
-          <input type="radio" id="diff-hard" name="difficulty" value="hard">
-          <label for="diff-hard">HARD</label>
+  <div class="app-wrapper">
+    
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-flask"></i>
+        </div>
+        <div class="brand-text">
+          <h1>化学マスター</h1>
+          <p>高校化学・共通テスト 一問一答</p>
         </div>
       </div>
-
-      <div class="form-group">
-        <label for="sector-select">2. 単元を選択してください</label>
-        <select id="sector-select">
-          <!-- JSで動的に選択肢を自動生成 -->
-        </select>
+      <div class="header-controls">
+        <button id="sound-toggle-btn" class="icon-btn" title="効果音オン/オフ">
+          <i class="fa-solid fa-volume-high"></i>
+        </button>
       </div>
+    </header>
 
-      <button id="start-btn" class="btn btn-primary" style="margin-top: 32px;">クイズを開始</button>
-    </div>
+    <!-- TAB NAV -->
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="quiz">
+        <i class="fa-solid fa-bullseye"></i>
+        <span>クイズ</span>
+      </button>
+      <button class="tab-btn" data-tab="flashcard">
+        <i class="fa-solid fa-clone"></i>
+        <span>暗記カード</span>
+      </button>
+      <button class="tab-btn" data-tab="dict">
+        <i class="fa-solid fa-book-bookmark"></i>
+        <span>単語帳</span>
+      </button>
+      <button class="tab-btn" data-tab="stats">
+        <i class="fa-solid fa-chart-pie"></i>
+        <span>学習記録</span>
+      </button>
+    </nav>
 
-    <!-- 2. クイズ画面 -->
-    <div id="quiz-screen" class="screen">
-      <div class="screen-header">Quiz</div>
-      <div class="progress-bar">問題: <span id="current-lap">1</span> / <span id="total-lap">0</span></div>
-      
-      <h2>QUESTION</h2>
-      <div id="question-text" class="question-box">問題文がここに表示されます。</div>
+    <!-- MAIN CONTENT AREA -->
+    <main class="content-area">
 
-      <!-- 答えを表示ボタン（初期状態） -->
-      <div id="action-area" class="action-group">
-        <button id="view-answer-btn" class="btn btn-primary">答えを表示</button>
-      </div>
-
-      <!-- 解説エリア（ボタンを押したら表示） -->
-      <div id="answer-area" class="answer-box">
-        <div class="answer-section">
-          <div class="answer-title title-correct">■ 正解</div>
-          <div id="answer-text" class="answer-text">ここに答えが表示されます。</div>
-        </div>
-        <div class="answer-section">
-          <div class="answer-title title-comment">■ 解説</div>
-          <div id="comment-text" class="comment-text">ここに解説が表示されます。</div>
-        </div>
+      <!-- ==========================================
+           TAB 1: QUIZ MODE
+           ========================================== -->
+      <section id="tab-quiz" class="tab-content active">
         
-        <!-- 自己申告ボタン -->
-        <div class="judge-group">
-          <button id="correct-btn" class="btn btn-correct">正解した</button>
-          <button id="wrong-btn" class="btn btn-wrong">間違えた</button>
-        </div>
-      </div>
-      <button id="retire-btn" class="btn btn-dark" style="margin-top: 32px;">クイズを終了してトップに戻る</button>
-    </div>
+        <!-- 1. QUIZ SETUP SCREEN -->
+        <div id="quiz-setup">
+          <div class="section-title">
+            <i class="fa-solid fa-sliders" style="color: var(--accent-cyan);"></i>
+            <span>出題条件の設定</span>
+          </div>
+          <div class="section-desc">挑戦する単元と難易度を選んでクイズを開始します。</div>
 
-    <!-- 3. リザルト画面 -->
-    <div id="result-screen" class="screen">
-      <div class="screen-header">Results</div>
-      <h1>クイズ完了</h1>
-      <div class="sub-title">おつかれさまでした</div>
+          <div class="form-group">
+            <label class="form-label">1. 単元を選択</label>
+            <select id="quiz-sector-select">
+              <option value="all">全単元からランダム出題</option>
+              <option value="第1章">第1章：物質の探究</option>
+              <option value="第2章">第2章：物質の構成粒子</option>
+              <option value="第3章">第3章：物質と化学結合</option>
+              <option value="第4章">第4章：物質量と濃度・溶解度</option>
+              <option value="第5章">第5章：化学反応式と量的関係</option>
+              <option value="第6章">第6章：酸・塩基</option>
+              <option value="第7章：酸化還元反応">第7章：酸化還元反応</option>
+              <option value="第8章">第8章：電池・電気分解</option>
+              <option value="第9章">第9章：状態変化とエネルギー</option>
+              <option value="第10章">第10章：固体の構造</option>
+            </select>
+          </div>
 
-      <div class="result-score">
-        <div id="result-rate" class="score-number">0%</div>
-        <div class="score-label">正解率</div>
-      </div>
+          <div class="form-group">
+            <label class="form-label">2. 難易度を選択</label>
+            <div class="radio-grid">
+              <input type="radio" id="diff-all" name="quiz-diff" value="all" checked>
+              <label for="diff-all">すべて</label>
+              <input type="radio" id="diff-soft" name="quiz-diff" value="soft">
+              <label for="diff-soft">SOFT</label>
+              <input type="radio" id="diff-medium" name="quiz-diff" value="medium">
+              <label for="diff-medium">MEDIUM</label>
+              <input type="radio" id="diff-hard" name="quiz-diff" value="hard">
+              <label for="diff-hard">HARD</label>
+            </div>
+          </div>
 
-      <div class="stats-table">
-        <div class="stats-row">
-          <span>難易度</span>
-          <span id="res-diff" class="stats-val">-</span>
-        </div>
-        <div class="stats-row">
-          <span>単元</span>
-          <span id="res-sector" class="stats-val">-</span>
-        </div>
-        <div class="stats-row">
-          <span>総問題数</span>
-          <span id="res-total" class="stats-val">-</span>
-        </div>
-        <div class="stats-row">
-          <span>正解数</span>
-          <span id="res-correct" class="stats-val" style="color: #10b981;">-</span>
-        </div>
-      </div>
+          <div class="form-group">
+            <label class="form-label">3. 解答形式</label>
+            <div class="radio-grid">
+              <input type="radio" id="mode-self" name="quiz-type" value="self" checked>
+              <label for="mode-self">自己判定 (カード)</label>
+              <input type="radio" id="mode-choice" name="quiz-type" value="choice">
+              <label for="mode-choice">4択クイズ</label>
+            </div>
+          </div>
 
-      <button id="back-to-top-btn" class="btn btn-primary">トップに戻る</button>
-    </div>
+          <div class="form-group">
+            <label class="form-label">4. 特別フィルタ</label>
+            <div class="radio-grid">
+              <input type="radio" id="filter-normal" name="quiz-filter" value="normal" checked>
+              <label for="filter-normal">通常</label>
+              <input type="radio" id="filter-star" name="quiz-filter" value="star">
+              <label for="filter-star">★ブックマーク</label>
+              <input type="radio" id="filter-weak" name="quiz-filter" value="weak">
+              <label for="filter-weak">弱点特訓</label>
+            </div>
+          </div>
 
+          <button id="start-quiz-btn" class="btn btn-primary" style="margin-top: 10px;">
+            <i class="fa-solid fa-play"></i>
+            <span>クイズスタート</span>
+          </button>
+        </div>
+
+        <!-- 2. ACTIVE QUIZ SCREEN -->
+        <div id="quiz-active" style="display: none;">
+          <div class="quiz-progress-bar">
+            <div id="quiz-progress-fill" class="quiz-progress-fill"></div>
+          </div>
+
+          <div class="quiz-header-info">
+            <span id="quiz-tag-badge" class="tag-badge tag-soft">第1章 / SOFT</span>
+            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted);">
+              問 <span id="quiz-cur-num" style="color: var(--text-main);">1</span> / <span id="quiz-total-num">10</span>
+            </span>
+          </div>
+
+          <div class="question-card">
+            <div id="quiz-q-text">問題文がここに表示されます。</div>
+            <button id="quiz-star-btn" class="star-btn" title="ブックマーク切り替え">
+              <i class="fa-solid fa-star"></i>
+            </button>
+          </div>
+
+          <!-- Self-Evaluation View -->
+          <div id="quiz-self-area">
+            <button id="reveal-ans-btn" class="btn btn-primary">
+              <i class="fa-solid fa-eye"></i>
+              <span>答えを表示</span>
+            </button>
+
+            <div id="quiz-ans-box" class="answer-box">
+              <div class="ans-label">■ 正解</div>
+              <div id="quiz-ans-text" class="ans-text">---</div>
+              <div class="comment-label">■ 解説</div>
+              <div id="quiz-comment-text" class="comment-text">---</div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px;">
+                <button id="btn-judge-correct" class="btn btn-success">
+                  <i class="fa-solid fa-circle-check"></i> 覚えている
+                </button>
+                <button id="btn-judge-wrong" class="btn btn-danger">
+                  <i class="fa-solid fa-circle-xmark"></i> あやふや
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4-Choice View -->
+          <div id="quiz-choice-area" style="display: none;">
+            <div id="choices-container" class="choices-grid">
+              <!-- Choices rendered dynamically -->
+            </div>
+            <div id="choice-comment-box" class="answer-box">
+              <div class="comment-label">■ 解説</div>
+              <div id="choice-comment-text" class="comment-text">---</div>
+              <button id="btn-next-choice" class="btn btn-primary" style="margin-top: 14px;">
+                次の問題へ <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <button id="quit-quiz-btn" class="btn btn-secondary" style="margin-top: 20px;">
+            中断してメニューに戻る
+          </button>
+        </div>
+
+        <!-- 3. QUIZ RESULT SCREEN -->
+        <div id="quiz-result" style="display: none;">
+          <div class="section-title" style="justify-content: center;">クイズ完了！</div>
+          <div class="section-desc" style="text-align: center;">おつかれさまでした。学習結果です。</div>
+
+          <div class="result-display">
+            <div class="result-score-circle">
+              <div id="res-accuracy-num" class="score-num">0</div>
+              <div class="score-unit">% 正解</div>
+            </div>
+          </div>
+
+          <div style="background: rgba(15, 23, 42, 0.6); border-radius: var(--radius-md); padding: 16px; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.9rem;">
+              <span style="color: var(--text-muted);">挑戦問題数</span>
+              <span id="res-total-count" style="font-weight: 700;">0 問</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.9rem;">
+              <span style="color: var(--text-muted);">正解数</span>
+              <span id="res-correct-count" style="font-weight: 700; color: var(--success);">0 問</span>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button id="res-retry-weak-btn" class="btn btn-danger" style="display: none;">
+              <i class="fa-solid fa-rotate-right"></i> ミス問題だけ再挑戦
+            </button>
+            <button id="res-back-btn" class="btn btn-primary">
+              設定画面に戻る
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ==========================================
+           TAB 2: FLASHCARD MODE
+           ========================================== -->
+      <section id="tab-flashcard" class="tab-content">
+        <div class="section-title">
+          <i class="fa-solid fa-clone" style="color: var(--accent-purple);"></i>
+          <span>暗記カード</span>
+        </div>
+        <div class="section-desc">カードをタップして裏返し、テンポよく記憶を定着させます。</div>
+
+        <!-- Filter Controls -->
+        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+          <select id="fc-sector-select">
+            <option value="all">全単元</option>
+            <option value="第1章">第1章</option>
+            <option value="第2章">第2章</option>
+            <option value="第3章">第3章</option>
+            <option value="第4章">第4章</option>
+            <option value="第5章">第5章</option>
+            <option value="第6章">第6章</option>
+            <option value="第7章">第7章</option>
+            <option value="第8章">第8章</option>
+            <option value="第9章">第9章</option>
+            <option value="第10章">第10章</option>
+          </select>
+          <button id="fc-shuffle-btn" class="icon-btn" style="width: 48px; height: 44px;" title="シャッフル">
+            <i class="fa-solid fa-shuffle"></i>
+          </button>
+        </div>
+
+        <!-- 3D Card -->
+        <div id="flashcard-box" class="flashcard-container">
+          <div class="flashcard-inner">
+            <!-- Front -->
+            <div class="card-front">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span id="fc-badge" class="tag-badge tag-soft">第1章</span>
+                <button id="fc-star-btn" class="star-btn" style="position: static;"><i class="fa-solid fa-star"></i></button>
+              </div>
+              <div id="fc-q-text" style="font-size: 1.1rem; font-weight: 700; line-height: 1.6; text-align: center;">
+                質問文がここに表示されます。
+              </div>
+              <div class="card-hint">
+                <i class="fa-solid fa-hand-pointer"></i> タップして答えを表示
+              </div>
+            </div>
+            <!-- Back -->
+            <div class="card-back">
+              <div class="ans-label">■ 正解</div>
+              <div id="fc-ans-text" style="font-size: 1.3rem; font-weight: 800; color: #fff; text-align: center;">
+                正解単語
+              </div>
+              <div id="fc-comment-text" style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.4; max-height: 100px; overflow-y: auto;">
+                解説文
+              </div>
+              <div class="card-hint" style="color: var(--text-muted);">
+                <i class="fa-solid fa-rotate-left"></i> タップで表に戻る
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Controls -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <button id="fc-btn-again" class="btn btn-danger">
+            <i class="fa-solid fa-rotate-right"></i> まだ / もう一回
+          </button>
+          <button id="fc-btn-master" class="btn btn-success">
+            <i class="fa-solid fa-check"></i> 覚えた！
+          </button>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 3: DICTIONARY & SEARCH MODE
+           ========================================== -->
+      <section id="tab-dict" class="tab-content">
+        <div class="section-title">
+          <i class="fa-solid fa-book-bookmark" style="color: var(--primary);"></i>
+          <span>化学単語帳・辞書</span>
+        </div>
+        <div class="section-desc">全351問の用語・解説をいつでもキーワード検索できます。</div>
+
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="dict-search-input" placeholder="例: オゾン, 炎色反応, モル, 電池...">
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+          <select id="dict-sector-filter">
+            <option value="all">すべての単元</option>
+            <option value="第1章">第1章：物質の探究</option>
+            <option value="第2章">第2章：物質の構成粒子</option>
+            <option value="第3章">第3章：物質と化学結合</option>
+            <option value="第4章">第4章：物質量と濃度・溶解度</option>
+            <option value="第5章">第5章：化学反応式と量的関係</option>
+            <option value="第6章">第6章：酸・塩基</option>
+            <option value="第7章：酸化還元反応">第7章：酸化還元反応</option>
+            <option value="第8章">第8章：電池・電気分解</option>
+            <option value="第9章">第9章：状態変化とエネルギー</option>
+            <option value="第10章">第10章：固体の構造</option>
+          </select>
+          <select id="dict-star-filter" style="width: 140px;">
+            <option value="all">全問題</option>
+            <option value="star">★ブックマーク</option>
+          </select>
+        </div>
+
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">
+          ヒット数: <span id="dict-count-num" style="color: var(--accent-cyan); font-weight: 700;">0</span> 件
+        </div>
+
+        <div id="dict-results-container" class="dict-list">
+          <!-- Dictionary Cards populated dynamically -->
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 4: DASHBOARD & STATS
+           ========================================== -->
+      <section id="tab-stats" class="tab-content">
+        <div class="section-title">
+          <i class="fa-solid fa-chart-pie" style="color: var(--success);"></i>
+          <span>学習ダッシュボード</span>
+        </div>
+        <div class="section-desc">これまでの学習成果と各章の理解度です。</div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div id="stat-total-ans" class="stat-val">0</div>
+            <div class="stat-lbl">総解答数</div>
+          </div>
+          <div class="stat-card">
+            <div id="stat-acc-rate" class="stat-val">0%</div>
+            <div class="stat-lbl">総合正解率</div>
+          </div>
+          <div class="stat-card">
+            <div id="stat-star-count" class="stat-val" style="color: #f59e0b;">0</div>
+            <div class="stat-lbl">★ブックマーク数</div>
+          </div>
+          <div class="stat-card">
+            <div id="stat-weak-count" class="stat-val" style="color: var(--danger);">0</div>
+            <div class="stat-lbl">弱点問題数</div>
+          </div>
+        </div>
+
+        <div class="section-title" style="font-size: 1rem; margin-bottom: 12px;">
+          <span>単元ごとの理解度</span>
+        </div>
+
+        <div id="ch-progress-container" class="ch-progress-list">
+          <!-- Chapter Progress Bars populated dynamically -->
+        </div>
+
+        <button id="reset-data-btn" class="btn btn-secondary" style="margin-top: 24px; color: var(--danger);">
+          <i class="fa-solid fa-trash-can"></i> 学習記録の全消去
+        </button>
+      </section>
+
+    </main>
   </div>
 
-  <!-- ==========================================
-       JAVASCRIPT LOGIC
-       ========================================== */ -->
+  <!-- JAVASCRIPT & LOGIC -->
   <script src="quiz-data.js"></script>
-  
+
   <script>
-    /* -------------------------------------------
-       1. 大単元（章）の日本語名称マップ
-       ------------------------------------------- */
-    const chapterNames = {
-      "第1章": "第1章：物質の探究",
-      "第2章": "第2章：物質の構成粒子",
-      "第3章": "第3章：物質と化学結合",
-      "第4章": "第4章：物質量と濃度・溶解度",
-      "第5章": "第5章：化学反応式と量的関係",
-      "第6章": "第6章：酸・塩基",
-      "第7章": "第7章：酸化還元反応",
-      "第8章": "第8章：電池・電気分解",
-      "第9章": "第9章：状態変化とエネルギー",
-      "第10章": "第10章：固体の構造"
+    /* ==========================================
+       1. APP STATE & LOCALSTORAGE PERSISTENCE
+       ========================================== */
+    const STORAGE_KEY = 'chem_master_user_data_v2';
+
+    let userData = {
+      stars: {}, // { [qId]: true }
+      weak: {},  // { [qId]: count }
+      history: {
+        total: 0,
+        correct: 0
+      },
+      soundEnabled: true
     };
 
-    /* -------------------------------------------
-       2. アプリケーション状態管理 (State)
-       ------------------------------------------- */
-    let currentDifficulty = 'medium';
-    let currentSector = '';
-    let currentQuestions = [];
-    let currentIndex = 0;
-    let score = 0;
-
-    /* -------------------------------------------
-       3. DOM要素の取得
-       ------------------------------------------- */
-    const startScreen = document.getElementById('start-screen');
-    const quizScreen = document.getElementById('quiz-screen');
-    const resultScreen = document.getElementById('result-screen');
-
-    const sectorSelect = document.getElementById('sector-select');
-    const startBtn = document.getElementById('start-btn');
-
-    const currentLapTxt = document.getElementById('current-lap');
-    const totalLapTxt = document.getElementById('total-lap');
-    const questionText = document.getElementById('question-text');
-    const viewAnswerBtn = document.getElementById('view-answer-btn');
-    const answerArea = document.getElementById('answer-area');
-    const answerText = document.getElementById('answer-text');
-    const commentText = document.getElementById('comment-text');
-    const correctBtn = document.getElementById('correct-btn');
-    const wrongBtn = document.getElementById('wrong-btn');
-    const retireBtn = document.getElementById('retire-btn');
-
-    const resultRateTxt = document.getElementById('result-rate');
-    const resDiffTxt = document.getElementById('res-diff');
-    const resSectorTxt = document.getElementById('res-sector');
-    const resTotalTxt = document.getElementById('res-total');
-    const resCorrectTxt = document.getElementById('res-correct');
-    const backToTopBtn = document.getElementById('back-to-top-btn');
-
-    /* -------------------------------------------
-       4. 選択されている難易度（ラジオボタン）の取得ヘルパー
-       ------------------------------------------- */
-    function getSelectedDifficulty() {
-      return document.querySelector('input[name="difficulty"]:checked').value;
+    function loadUserData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          userData = JSON.parse(saved);
+        } catch (e) {
+          console.error("Failed to parse user data", e);
+        }
+      }
     }
 
-    /* -------------------------------------------
-       5. ユーティリティ関数（化学式自動下付き変換）
-       ------------------------------------------- */
+    function saveUserData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
+      updateDashboardStats();
+    }
+
+    /* ==========================================
+       2. WEB AUDIO API SYNTHESIZER
+       ========================================== */
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playSound(type) {
+      if (!userData.soundEnabled) return;
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        const now = audioCtx.currentTime;
+
+        if (type === 'correct') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+          osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        } else if (type === 'wrong') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now); // A3
+          osc.frequency.setValueAtTime(174.61, now + 0.12); // F3
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else if (type === 'flip') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(400, now);
+          osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        }
+      } catch (e) {
+        console.error("Audio error", e);
+      }
+    }
+
+    /* ==========================================
+       3. BEAUTIFUL MATH & CHEMICAL FORMATTER (KaTeX Integration)
+       ========================================== */
     function formatChemicalFormula(text) {
       if (!text) return "";
-      return text.replace(/([A-Z][a-z]?)(\d+)/g, '$1<sub>$2</sub>');
+      let html = text;
+
+      // 1. Process KaTeX inline math $...$
+      if (typeof katex !== 'undefined') {
+        html = html.replace(/\$([^\$]+)\$/g, function(match, mathStr) {
+          try {
+            return katex.renderToString(mathStr, { displayMode: false, throwOnError: false });
+          } catch(e) {
+            return match;
+          }
+        });
+      }
+
+      // 2. Chemical Caret notation e.g. 10^-14
+      html = html.replace(/\^([0-9\+\-]+)/g, '<sup>$1</sup>');
+
+      // 3. Ions with numbers and sign: e.g. Fe3+, Cu2+, SO42-, Cl-, OH-, Na+
+      html = html.replace(/([A-Za-z0-9\)\>]+)([\+\-])/g, (match, body, sign) => {
+        if (body.endsWith('sup>') || body.endsWith('sub>') || body.includes('katex')) return match;
+        const subMatch = body.match(/^(.*[A-Za-z\)\>])(\d+)$/);
+        if (subMatch) {
+          return subMatch[1] + '<sup>' + subMatch[2] + sign + '</sup>';
+        }
+        return body + '<sup>' + sign + '</sup>';
+      });
+
+      // 4. Isotopes e.g. 12C, 14C at start or isolated
+      html = html.replace(/(^|[\s\(\[\{])(\d+)([A-Z][a-z]?)(?![a-z0-9])/g, '$1<sup>$2</sup>$3');
+
+      // 5. Chemical formula subscript numbers: e.g. H2O -> H₂O, CuSO4 -> CuSO₄
+      html = html.replace(/([A-Z][a-z]?|\))(\d+)/g, '$1<sub>$2</sub>');
+
+      return html;
     }
 
-    /* -------------------------------------------
-       6. イベントリスナー・関数定義
-       ------------------------------------------- */
+    /* ==========================================
+       4. TAB NAVIGATION SYSTEM
+       ========================================== */
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
 
-    function updateSectorMenu() {
-      const diff = getSelectedDifficulty();
-      sectorSelect.innerHTML = '';
-      
-      if (typeof quizQuestions === 'undefined') {
-        const opt = document.createElement('option');
-        opt.textContent = "データファイル未読み込み";
-        sectorSelect.appendChild(opt);
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tabId = btn.dataset.tab;
+        
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+
+        btn.classList.add('active');
+        document.getElementById(`tab-${tabId}`).classList.add('active');
+
+        if (tabId === 'dict') renderDictionary();
+        if (tabId === 'flashcard') initFlashcards();
+        if (tabId === 'stats') updateDashboardStats();
+      });
+    });
+
+    /* ==========================================
+       5. QUIZ LOGIC & SMART DISTRACTOR GENERATOR
+       ========================================== */
+    let quizState = {
+      questions: [],
+      currentIndex: 0,
+      score: 0,
+      type: 'self', // 'self' | 'choice'
+      missed: []
+    };
+
+    const quizSetup = document.getElementById('quiz-setup');
+    const quizActive = document.getElementById('quiz-active');
+    const quizResult = document.getElementById('quiz-result');
+    const startQuizBtn = document.getElementById('start-quiz-btn');
+
+    startQuizBtn.addEventListener('click', () => {
+      const sector = document.getElementById('quiz-sector-select').value;
+      const diff = document.querySelector('input[name="quiz-diff"]:checked').value;
+      const type = document.querySelector('input[name="quiz-type"]:checked').value;
+      const filter = document.querySelector('input[name="quiz-filter"]:checked').value;
+
+      if (typeof quizQuestions === 'undefined' || !quizQuestions.length) {
+        alert('quiz-data.js のデータが正常に読み込まれていません。');
         return;
       }
 
-      const chapters = new Set();
-      quizQuestions.forEach(q => {
-        if (q.difficulty === diff) {
-          const match = q.question.match(/【(第\d+章)】/);
-          if (match) {
-            chapters.add(match[1]);
+      let filtered = [...quizQuestions];
+
+      if (sector !== 'all') {
+        filtered = filtered.filter(q => q.chapter === sector);
+      }
+      if (diff !== 'all') {
+        filtered = filtered.filter(q => q.difficulty === diff);
+      }
+      if (filter === 'star') {
+        filtered = filtered.filter(q => userData.stars[q.id]);
+      } else if (filter === 'weak') {
+        filtered = filtered.filter(q => (userData.weak[q.id] || 0) > 0);
+      }
+
+      if (filtered.length === 0) {
+        alert('条件に一致する問題がありませんでした。フィルタ条件を変更してください。');
+        return;
+      }
+
+      // Shuffle
+      filtered.sort(() => Math.random() - 0.5);
+      
+      // Limit to 15 questions max per session
+      filtered = filtered.slice(0, 15);
+
+      quizState = {
+        questions: filtered,
+        currentIndex: 0,
+        score: 0,
+        type: type,
+        missed: []
+      };
+
+      quizSetup.style.display = 'none';
+      quizResult.style.display = 'none';
+      quizActive.style.display = 'block';
+
+      renderQuizQuestion();
+    });
+
+    function renderQuizQuestion() {
+      const q = quizState.questions[quizState.currentIndex];
+      const total = quizState.questions.length;
+      const curIndex = quizState.currentIndex;
+
+      document.getElementById('quiz-progress-fill').style.width = `${((curIndex) / total) * 100}%`;
+      document.getElementById('quiz-cur-num').textContent = curIndex + 1;
+      document.getElementById('quiz-total-num').textContent = total;
+
+      const badge = document.getElementById('quiz-tag-badge');
+      badge.textContent = `${q.chapter} / ${q.difficulty.toUpperCase()}`;
+      badge.className = `tag-badge tag-${q.difficulty}`;
+
+      document.getElementById('quiz-q-text').innerHTML = formatChemicalFormula(q.question);
+      
+      const starBtn = document.getElementById('quiz-star-btn');
+      starBtn.className = `star-btn ${userData.stars[q.id] ? 'active' : ''}`;
+      starBtn.onclick = () => {
+        userData.stars[q.id] = !userData.stars[q.id];
+        starBtn.className = `star-btn ${userData.stars[q.id] ? 'active' : ''}`;
+        saveUserData();
+      };
+
+      const selfArea = document.getElementById('quiz-self-area');
+      const choiceArea = document.getElementById('quiz-choice-area');
+
+      if (quizState.type === 'self') {
+        selfArea.style.display = 'block';
+        choiceArea.style.display = 'none';
+        
+        document.getElementById('reveal-ans-btn').style.display = 'flex';
+        const ansBox = document.getElementById('quiz-ans-box');
+        ansBox.classList.remove('active');
+
+        document.getElementById('quiz-ans-text').innerHTML = formatChemicalFormula(q.answer);
+        document.getElementById('quiz-comment-text').innerHTML = formatChemicalFormula(q.comment);
+      } else {
+        selfArea.style.display = 'none';
+        choiceArea.style.display = 'block';
+
+        render4Choices(q);
+      }
+    }
+
+    document.getElementById('reveal-ans-btn').addEventListener('click', () => {
+      document.getElementById('reveal-ans-btn').style.display = 'none';
+      document.getElementById('quiz-ans-box').classList.add('active');
+    });
+
+    document.getElementById('btn-judge-correct').addEventListener('click', () => {
+      playSound('correct');
+      const q = quizState.questions[quizState.currentIndex];
+      if (userData.weak[q.id]) userData.weak[q.id] = Math.max(0, userData.weak[q.id] - 1);
+      quizState.score++;
+      userData.history.total++;
+      userData.history.correct++;
+      saveUserData();
+      advanceQuiz();
+    });
+
+    document.getElementById('btn-judge-wrong').addEventListener('click', () => {
+      playSound('wrong');
+      const q = quizState.questions[quizState.currentIndex];
+      userData.weak[q.id] = (userData.weak[q.id] || 0) + 1;
+      quizState.missed.push(q);
+      userData.history.total++;
+      saveUserData();
+      advanceQuiz();
+    });
+
+    /* SMART DISTRACTOR SELECTION FOR 4-CHOICE MODE */
+    function getAnswerCategory(ans) {
+      if (ans.includes('$') || ans.includes('=') || ans.includes('\\frac') || ans.includes('\\sqrt') || ans.includes('\\times') || ans.includes('+') || ans.includes('-') || ans.includes('/')) {
+        return 'FORMULA';
+      }
+      if (ans.includes('色') || ans.includes('沈殿') || ans.includes('赤') || ans.includes('黄') || ans.includes('青') || ans.includes('緑') || ans.includes('紫') || ans.includes('黒') || ans.includes('無色') || ans.includes('白')) {
+        return 'COLOR';
+      }
+      const scientists = ['ラボアジエ', 'プルースト', 'ドルトン', 'ゲーリュサック', 'アボガドロ', 'メンデレーエフ', 'ポーリング', 'トリチェリ', 'ボイル', 'シャルル', 'ファラデー', 'アレニウス', 'ブレンステッド'];
+      if (scientists.some(s => ans.includes(s))) {
+        return 'PERSON';
+      }
+      if (ans.includes('格子') || ans.includes('形') || ans.includes('構造') || ans.includes('アモルファス')) {
+        return 'LATTICE';
+      }
+      if (/^\d/.test(ans) || ans.includes('%') || ans.includes('mol') || ans.includes('g') || ans.includes('L') || ans.includes('℃') || ans.includes('K')) {
+        return 'NUMBER';
+      }
+      return 'TERM';
+    }
+
+    function render4Choices(q) {
+      const container = document.getElementById('choices-container');
+      const commentBox = document.getElementById('choice-comment-box');
+      commentBox.classList.remove('active');
+      container.innerHTML = '';
+
+      const targetCategory = getAnswerCategory(q.answer);
+
+      // Distractor candidates pool
+      let candidates = quizQuestions.filter(item => item.answer !== q.answer);
+
+      // Prioritize same category + same chapter first
+      let categoryMatches = candidates.filter(item => getAnswerCategory(item.answer) === targetCategory);
+      let sameChapterMatches = categoryMatches.filter(item => item.chapter === q.chapter);
+
+      let pool = [];
+      if (sameChapterMatches.length >= 3) {
+        pool = sameChapterMatches;
+      } else if (categoryMatches.length >= 3) {
+        pool = categoryMatches;
+      } else {
+        // Fall back to same chapter items
+        let chapterPool = candidates.filter(item => item.chapter === q.chapter);
+        if (chapterPool.length >= 3) {
+          pool = chapterPool;
+        } else {
+          pool = candidates;
+        }
+      }
+
+      pool.sort(() => Math.random() - 0.5);
+
+      // Select unique answers
+      let dummySet = new Set();
+      for (let item of pool) {
+        if (item.answer !== q.answer && !dummySet.has(item.answer)) {
+          dummySet.add(item.answer);
+          if (dummySet.size >= 3) break;
+        }
+      }
+
+      // If pool didn't give 3 unique, fill from all candidates
+      if (dummySet.size < 3) {
+        candidates.sort(() => Math.random() - 0.5);
+        for (let item of candidates) {
+          if (item.answer !== q.answer && !dummySet.has(item.answer)) {
+            dummySet.add(item.answer);
+            if (dummySet.size >= 3) break;
           }
         }
-      });
+      }
 
-      const allOption = document.createElement('option');
-      allOption.value = 'all';
-      allOption.textContent = 'すべての単元から出題';
-      sectorSelect.appendChild(allOption);
+      let choices = [q.answer, ...Array.from(dummySet)];
+      choices.sort(() => Math.random() - 0.5);
 
-      Array.from(chapters).sort((a, b) => {
-        const numA = parseInt(a.match(/\d+/)[0]);
-        const numB = parseInt(b.match(/\d+/)[0]);
-        return numA - numB;
-      }).forEach(ch => {
-        const option = document.createElement('option');
-        option.value = ch;
-        option.textContent = chapterNames[ch] || ch;
-        sectorSelect.appendChild(option);
+      choices.forEach(choiceText => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.innerHTML = `<span>${formatChemicalFormula(choiceText)}</span><i class="fa-regular fa-circle"></i>`;
+        
+        btn.onclick = () => {
+          const allBtns = container.querySelectorAll('.choice-btn');
+          allBtns.forEach(b => b.disabled = true);
+
+          if (choiceText === q.answer) {
+            playSound('correct');
+            btn.classList.add('correct');
+            btn.querySelector('i').className = 'fa-solid fa-circle-check';
+            quizState.score++;
+            if (userData.weak[q.id]) userData.weak[q.id] = Math.max(0, userData.weak[q.id] - 1);
+            userData.history.correct++;
+          } else {
+            playSound('wrong');
+            btn.classList.add('wrong');
+            btn.querySelector('i').className = 'fa-solid fa-circle-xmark';
+            quizState.missed.push(q);
+            userData.weak[q.id] = (userData.weak[q.id] || 0) + 1;
+
+            // Highlight right answer
+            allBtns.forEach(b => {
+              if (b.textContent.trim() === q.answer || b.innerHTML.includes(q.answer)) {
+                b.classList.add('correct');
+              }
+            });
+          }
+
+          userData.history.total++;
+          saveUserData();
+
+          document.getElementById('choice-comment-text').innerHTML = formatChemicalFormula(q.comment);
+          commentBox.classList.add('active');
+        };
+
+        container.appendChild(btn);
       });
     }
 
-    // 難易度（ラジオボタン）変更時にセクターを連動
-    document.querySelectorAll('input[name="difficulty"]').forEach(radio => {
-      radio.addEventListener('change', updateSectorMenu);
-    });
-    
-    window.addEventListener('DOMContentLoaded', updateSectorMenu);
-
-    function switchScreen(targetScreen) {
-      [startScreen, quizScreen, resultScreen].forEach(screen => {
-        screen.classList.remove('active');
-      });
-      targetScreen.classList.add('active');
-    }
-
-    // クイズ開始
-    startBtn.addEventListener('click', () => {
-      currentDifficulty = getSelectedDifficulty();
-      currentSector = sectorSelect.value;
-
-      if (typeof quizQuestions === 'undefined') {
-        alert('quiz-data.js が正しく読み込まれていません。');
-        return;
-      }
-
-      let filtered = quizQuestions.filter(q => q.difficulty === currentDifficulty);
-      
-      if (currentSector !== 'all') {
-        filtered = filtered.filter(q => q.question.includes(`【${currentSector}】`));
-      }
-
-      currentQuestions = filtered;
-      
-      if (currentQuestions.length === 0) {
-        alert('選択された条件に該当する問題がありません。');
-        return;
-      }
-
-      currentIndex = 0;
-      score = 0;
-      
-      totalLapTxt.textContent = currentQuestions.length;
-      showQuestion();
-      switchScreen(quizScreen);
+    document.getElementById('btn-next-choice').addEventListener('click', () => {
+      advanceQuiz();
     });
 
-    function showQuestion() {
-      answerArea.classList.remove('reveal');
-      viewAnswerBtn.style.display = 'block';
-
-      const q = currentQuestions[currentIndex];
-      currentLapTxt.textContent = currentIndex + 1;
-      
-      questionText.innerHTML = formatChemicalFormula(q.question);
-      answerText.innerHTML = formatChemicalFormula(q.answer);
-      commentText.innerHTML = formatChemicalFormula(q.comment);
-    }
-
-    viewAnswerBtn.addEventListener('click', () => {
-      viewAnswerBtn.style.display = 'none';
-      answerArea.classList.add('reveal');
-    });
-
-    correctBtn.addEventListener('click', () => {
-      score++;
-      nextStep();
-    });
-
-    wrongBtn.addEventListener('click', () => {
-      nextStep();
-    });
-
-    function nextStep() {
-      currentIndex++;
-      if (currentIndex < currentQuestions.length) {
-        showQuestion();
+    function advanceQuiz() {
+      quizState.currentIndex++;
+      if (quizState.currentIndex < quizState.questions.length) {
+        renderQuizQuestion();
       } else {
-        showResult();
+        showQuizResults();
       }
     }
 
-    function showResult() {
-      const total = currentQuestions.length;
-      const rate = Math.round((score / total) * 100);
+    function showQuizResults() {
+      quizActive.style.display = 'none';
+      quizResult.style.display = 'block';
 
-      resultRateTxt.textContent = `${rate}%`;
-      resDiffTxt.textContent = currentDifficulty.toUpperCase();
-      
-      let sectorLabel = 'すべての単元';
-      if (currentSector !== 'all') {
-        sectorLabel = chapterNames[currentSector] || currentSector;
+      const total = quizState.questions.length;
+      const rate = Math.round((quizState.score / total) * 100);
+
+      document.getElementById('res-accuracy-num').textContent = rate;
+      document.getElementById('res-total-count').textContent = `${total} 問`;
+      document.getElementById('res-correct-count').textContent = `${quizState.score} 問`;
+
+      const retryBtn = document.getElementById('res-retry-weak-btn');
+      if (quizState.missed.length > 0) {
+        retryBtn.style.display = 'flex';
+        retryBtn.onclick = () => {
+          quizState = {
+            questions: [...quizState.missed],
+            currentIndex: 0,
+            score: 0,
+            type: quizState.type,
+            missed: []
+          };
+          quizResult.style.display = 'none';
+          quizActive.style.display = 'block';
+          renderQuizQuestion();
+        };
+      } else {
+        retryBtn.style.display = 'none';
       }
-      resSectorTxt.textContent = sectorLabel;
-      resTotalTxt.textContent = `${total} 問`;
-      resCorrectTxt.textContent = `${score} 問`;
-
-      switchScreen(resultScreen);
     }
 
-    backToTopBtn.addEventListener('click', () => {
-      updateSectorMenu();
-      switchScreen(startScreen);
+    document.getElementById('res-back-btn').addEventListener('click', () => {
+      quizResult.style.display = 'none';
+      quizSetup.style.display = 'block';
     });
 
-    retireBtn.addEventListener('click', () => {
-      const resetConfirm = confirm('本当にクイズを中断してトップに戻りますか？\n（これまでの学習記録は破棄されます）');
-      if (resetConfirm) {
-        updateSectorMenu();
-        switchScreen(startScreen);
+    document.getElementById('quit-quiz-btn').addEventListener('click', () => {
+      if (confirm('クイズを途中で終了してメニューに戻りますか？')) {
+        quizActive.style.display = 'none';
+        quizSetup.style.display = 'block';
       }
+    });
+
+    /* ==========================================
+       6. FLASHCARD LOGIC (TAB 2)
+       ========================================== */
+    let fcState = {
+      cards: [],
+      currentIndex: 0
+    };
+
+    const fcBox = document.getElementById('flashcard-box');
+    const fcSectorSelect = document.getElementById('fc-sector-select');
+
+    function initFlashcards() {
+      const sector = fcSectorSelect.value;
+      let filtered = [...quizQuestions];
+
+      if (sector !== 'all') {
+        filtered = filtered.filter(q => q.chapter === sector);
+      }
+
+      filtered.sort(() => Math.random() - 0.5);
+      fcState.cards = filtered;
+      fcState.currentIndex = 0;
+
+      renderFlashcard();
+    }
+
+    fcSectorSelect.addEventListener('change', initFlashcards);
+    document.getElementById('fc-shuffle-btn').addEventListener('click', () => {
+      playSound('flip');
+      initFlashcards();
+    });
+
+    fcBox.addEventListener('click', () => {
+      playSound('flip');
+      fcBox.classList.toggle('flipped');
+    });
+
+    function renderFlashcard() {
+      fcBox.classList.remove('flipped');
+      if (!fcState.cards.length) return;
+
+      const q = fcState.cards[fcState.currentIndex];
+
+      document.getElementById('fc-badge').textContent = `${q.chapter} / ${q.difficulty.toUpperCase()}`;
+      document.getElementById('fc-q-text').innerHTML = formatChemicalFormula(q.question);
+      document.getElementById('fc-ans-text').innerHTML = formatChemicalFormula(q.answer);
+      document.getElementById('fc-comment-text').innerHTML = formatChemicalFormula(q.comment);
+
+      const starBtn = document.getElementById('fc-star-btn');
+      starBtn.className = `star-btn ${userData.stars[q.id] ? 'active' : ''}`;
+      starBtn.onclick = (e) => {
+        e.stopPropagation();
+        userData.stars[q.id] = !userData.stars[q.id];
+        starBtn.className = `star-btn ${userData.stars[q.id] ? 'active' : ''}`;
+        saveUserData();
+      };
+    }
+
+    document.getElementById('fc-btn-again').addEventListener('click', () => {
+      playSound('wrong');
+      const q = fcState.cards[fcState.currentIndex];
+      userData.weak[q.id] = (userData.weak[q.id] || 0) + 1;
+      saveUserData();
+      advanceFlashcard();
+    });
+
+    document.getElementById('fc-btn-master').addEventListener('click', () => {
+      playSound('correct');
+      const q = fcState.cards[fcState.currentIndex];
+      if (userData.weak[q.id]) userData.weak[q.id] = Math.max(0, userData.weak[q.id] - 1);
+      saveUserData();
+      advanceFlashcard();
+    });
+
+    function advanceFlashcard() {
+      fcState.currentIndex = (fcState.currentIndex + 1) % fcState.cards.length;
+      renderFlashcard();
+    }
+
+    /* ==========================================
+       7. DICTIONARY & SEARCH LOGIC (TAB 3)
+       ========================================== */
+    const searchInput = document.getElementById('dict-search-input');
+    const dictSectorFilter = document.getElementById('dict-sector-filter');
+    const dictStarFilter = document.getElementById('dict-star-filter');
+    const dictContainer = document.getElementById('dict-results-container');
+    const dictCountNum = document.getElementById('dict-count-num');
+
+    function renderDictionary() {
+      if (typeof quizQuestions === 'undefined') return;
+
+      const query = searchInput.value.trim().toLowerCase();
+      const sector = dictSectorFilter.value;
+      const star = dictStarFilter.value;
+
+      let filtered = quizQuestions.filter(q => {
+        if (sector !== 'all' && q.chapter !== sector) return false;
+        if (star === 'star' && !userData.stars[q.id]) return false;
+        if (query) {
+          const matchQ = q.question.toLowerCase().includes(query);
+          const matchA = q.answer.toLowerCase().includes(query);
+          const matchC = q.comment.toLowerCase().includes(query);
+          if (!matchQ && !matchA && !matchC) return false;
+        }
+        return true;
+      });
+
+      dictCountNum.textContent = filtered.length;
+      dictContainer.innerHTML = '';
+
+      if (filtered.length === 0) {
+        dictContainer.innerHTML = `<div style="text-align: center; padding: 40px; color: var(--text-muted);">該当する化学用語は見つかりませんでした。</div>`;
+        return;
+      }
+
+      filtered.forEach(q => {
+        const card = document.createElement('div');
+        card.className = 'dict-item';
+
+        const isStarred = !!userData.stars[q.id];
+
+        card.innerHTML = `
+          <div class="dict-header">
+            <span class="tag-badge tag-${q.difficulty}">${q.chapter} / ${q.difficulty.toUpperCase()}</span>
+            <button class="star-btn ${isStarred ? 'active' : ''}" style="position: static;" data-id="${q.id}">
+              <i class="fa-solid fa-star"></i>
+            </button>
+          </div>
+          <div class="dict-ans">${formatChemicalFormula(q.answer)}</div>
+          <div class="dict-q" style="margin-bottom: 8px;">${formatChemicalFormula(q.question)}</div>
+          <div style="font-size: 0.8rem; color: #cbd5e1; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 6px; border-left: 3px solid var(--warning);">
+            ${formatChemicalFormula(q.comment)}
+          </div>
+        `;
+
+        card.querySelector('.star-btn').onclick = (e) => {
+          const btn = e.currentTarget;
+          userData.stars[q.id] = !userData.stars[q.id];
+          btn.className = `star-btn ${userData.stars[q.id] ? 'active' : ''}`;
+          saveUserData();
+        };
+
+        dictContainer.appendChild(card);
+      });
+    }
+
+    searchInput.addEventListener('input', renderDictionary);
+    dictSectorFilter.addEventListener('change', renderDictionary);
+    dictStarFilter.addEventListener('change', renderDictionary);
+
+    /* ==========================================
+       8. DASHBOARD & STATS LOGIC (TAB 4)
+       ========================================== */
+    function updateDashboardStats() {
+      document.getElementById('stat-total-ans').textContent = userData.history.total;
+      const rate = userData.history.total > 0 ? Math.round((userData.history.correct / userData.history.total) * 100) : 0;
+      document.getElementById('stat-acc-rate').textContent = `${rate}%`;
+
+      const starCount = Object.values(userData.stars).filter(Boolean).length;
+      document.getElementById('stat-star-count').textContent = starCount;
+
+      const weakCount = Object.values(userData.weak).filter(v => v > 0).length;
+      document.getElementById('stat-weak-count').textContent = weakCount;
+
+      // Chapter progress bars
+      const chContainer = document.getElementById('ch-progress-container');
+      chContainer.innerHTML = '';
+
+      const chapters = ["第1章", "第2章", "第3章", "第4章", "第5章", "第6章", "第7章", "第8章", "第9章", "第10章"];
+      const chNames = {
+        "第1章": "第1章：物質の探究",
+        "第2章": "第2章：物質の構成粒子",
+        "第3章": "第3章：物質と化学結合",
+        "第4章": "第4章：物質量と濃度・溶解度",
+        "第5章": "第5章：化学反応式と量的関係",
+        "第6章": "第6章：酸・塩基",
+        "第7章": "第7章：酸化還元反応",
+        "第8章": "第8章：電池・電気分解",
+        "第9章": "第9章：状態変化とエネルギー",
+        "第10章": "第10章：固体の構造"
+      };
+
+      chapters.forEach(ch => {
+        const qList = quizQuestions.filter(q => q.chapter === ch);
+        const total = qList.length;
+        const weakInCh = qList.filter(q => (userData.weak[q.id] || 0) > 0).length;
+        const masteredInCh = total - weakInCh;
+        const percent = total > 0 ? Math.round((masteredInCh / total) * 100) : 0;
+
+        const item = document.createElement('div');
+        item.className = 'ch-prog-item';
+        item.innerHTML = `
+          <div class="ch-prog-header">
+            <span>${chNames[ch]}</span>
+            <span style="color: var(--accent-cyan);">${percent}% (${masteredInCh}/${total})</span>
+          </div>
+          <div class="ch-prog-bar">
+            <div class="ch-prog-fill" style="width: ${percent}%;"></div>
+          </div>
+        `;
+        chContainer.appendChild(item);
+      });
+    }
+
+    document.getElementById('reset-data-btn').addEventListener('click', () => {
+      if (confirm('学習履歴、★ブックマーク、弱点記録をすべて消去しますか？')) {
+        userData = { stars: {}, weak: {}, history: { total: 0, correct: 0 }, soundEnabled: true };
+        saveUserData();
+        alert('データを初期化しました。');
+      }
+    });
+
+    // Sound Toggle
+    const soundBtn = document.getElementById('sound-toggle-btn');
+    soundBtn.addEventListener('click', () => {
+      userData.soundEnabled = !userData.soundEnabled;
+      soundBtn.innerHTML = userData.soundEnabled ? `<i class="fa-solid fa-volume-high"></i>` : `<i class="fa-solid fa-volume-xmark"></i>`;
+      saveUserData();
+    });
+
+    /* ==========================================
+       INIT APP ON LOAD
+       ========================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      loadUserData();
+      soundBtn.innerHTML = userData.soundEnabled ? `<i class="fa-solid fa-volume-high"></i>` : `<i class="fa-solid fa-volume-xmark"></i>`;
     });
   </script>
 </body>
