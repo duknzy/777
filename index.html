@@ -797,12 +797,12 @@
               <option value="第1章">第1章：物質の探究</option>
               <option value="第2章">第2章：物質の構成粒子</option>
               <option value="第3章">第3章：物質と化学結合</option>
-              <option value="第4章">第4章：物質量と濃度・溶解度</option>
+              <option value="第4章">第4章：物質量と気体・溶液の性質</option>
               <option value="第5章">第5章：化学反応式と量的関係</option>
               <option value="第6章">第6章：酸・塩基</option>
-              <option value="第7章：酸化還元反応">第7章：酸化還元反応</option>
+              <option value="第7章">第7章：酸化還元反応</option>
               <option value="第8章">第8章：電池・電気分解</option>
-              <option value="第9章">第9章：状態変化とエネルギー</option>
+              <option value="第9章">第9章：状態変化</option>
               <option value="第10章">第10章：固体の構造</option>
             </select>
           </div>
@@ -1028,7 +1028,7 @@
           <i class="fa-solid fa-book-bookmark" style="color: var(--primary);"></i>
           <span>化学単語帳・辞書</span>
         </div>
-        <div class="section-desc">全351問の用語・解説をいつでもキーワード検索できます。</div>
+        <div class="section-desc">全353問の用語・解説をいつでもキーワード検索できます。</div>
 
         <div class="search-box">
           <i class="fa-solid fa-magnifying-glass"></i>
@@ -1041,12 +1041,12 @@
             <option value="第1章">第1章：物質の探究</option>
             <option value="第2章">第2章：物質の構成粒子</option>
             <option value="第3章">第3章：物質と化学結合</option>
-            <option value="第4章">第4章：物質量と濃度・溶解度</option>
+            <option value="第4章">第4章：物質量と気体・溶液の性質</option>
             <option value="第5章">第5章：化学反応式と量的関係</option>
             <option value="第6章">第6章：酸・塩基</option>
-            <option value="第7章：酸化還元反応">第7章：酸化還元反応</option>
+            <option value="第7章">第7章：酸化還元反応</option>
             <option value="第8章">第8章：電池・電気分解</option>
-            <option value="第9章">第9章：状態変化とエネルギー</option>
+            <option value="第9章">第9章：状態変化</option>
             <option value="第10章">第10章：固体の構造</option>
           </select>
           <select id="dict-star-filter" style="width: 140px;">
@@ -1198,43 +1198,48 @@
     }
 
     /* ==========================================
-       3. BEAUTIFUL MATH & CHEMICAL FORMATTER (KaTeX Integration)
+       3. BEAUTIFUL MATH & CHEMICAL FORMATTER (Safe KaTeX Integration)
        ========================================== */
     function formatChemicalFormula(text) {
       if (!text) return "";
-      let html = text;
 
-      // 1. Process KaTeX inline math $...$
-      if (typeof katex !== 'undefined') {
-        html = html.replace(/\$([^\$]+)\$/g, function(match, mathStr) {
+      // 1. Extract KaTeX math blocks ($...$) into placeholders first
+      // This prevents subsequent chemical regexes from corrupting HTML attributes like aria-hidden="true"
+      const mathPlaceholders = [];
+      let processed = text.replace(/\$([^\$]+)\$/g, function(match, mathStr) {
+        let renderedHtml = match;
+        if (typeof katex !== 'undefined') {
           try {
-            return katex.renderToString(mathStr, { displayMode: false, throwOnError: false });
+            renderedHtml = katex.renderToString(mathStr, { displayMode: false, throwOnError: false });
           } catch(e) {
-            return match;
+            renderedHtml = match;
           }
-        });
-      }
+        }
+        const placeholder = `___MATH_PLACEHOLDER_${mathPlaceholders.length}___`;
+        mathPlaceholders.push(renderedHtml);
+        return placeholder;
+      });
 
-      // 2. Chemical Caret notation e.g. 10^-14
-      html = html.replace(/\^([0-9\+\-]+)/g, '<sup>$1</sup>');
+      // 2. Chemical Caret notation e.g. 10^-14 (for non-KaTeX text)
+      processed = processed.replace(/\^([0-9\+\-]+)/g, '<sup>$1</sup>');
 
       // 3. Ions with numbers and sign: e.g. Fe3+, Cu2+, SO42-, Cl-, OH-, Na+
-      html = html.replace(/([A-Za-z0-9\)\>]+)([\+\-])/g, (match, body, sign) => {
-        if (body.endsWith('sup>') || body.endsWith('sub>') || body.includes('katex')) return match;
-        const subMatch = body.match(/^(.*[A-Za-z\)\>])(\d+)$/);
-        if (subMatch) {
-          return subMatch[1] + '<sup>' + subMatch[2] + sign + '</sup>';
-        }
-        return body + '<sup>' + sign + '</sup>';
+      processed = processed.replace(/([A-Z][a-z]?|\))(\d*)([\+\-])/g, (match, symbol, num, sign) => {
+        return symbol + '<sup>' + (num || '') + sign + '</sup>';
       });
 
       // 4. Isotopes e.g. 12C, 14C at start or isolated
-      html = html.replace(/(^|[\s\(\[\{])(\d+)([A-Z][a-z]?)(?![a-z0-9])/g, '$1<sup>$2</sup>$3');
+      processed = processed.replace(/(^|[\s\(\[\{])(\d+)([A-Z][a-z]?)(?![a-z0-9])/g, '$1<sup>$2</sup>$3');
 
       // 5. Chemical formula subscript numbers: e.g. H2O -> H₂O, CuSO4 -> CuSO₄
-      html = html.replace(/([A-Z][a-z]?|\))(\d+)/g, '$1<sub>$2</sub>');
+      processed = processed.replace(/([A-Z][a-z]?|\))(\d+)/g, '$1<sub>$2</sub>');
 
-      return html;
+      // 6. Restore KaTeX math placeholders cleanly
+      mathPlaceholders.forEach((html, i) => {
+        processed = processed.replace(`___MATH_PLACEHOLDER_${i}___`, html);
+      });
+
+      return processed;
     }
 
     /* ==========================================
@@ -1743,12 +1748,12 @@
         "第1章": "第1章：物質の探究",
         "第2章": "第2章：物質の構成粒子",
         "第3章": "第3章：物質と化学結合",
-        "第4章": "第4章：物質量と濃度・溶解度",
+        "第4章": "第4章：物質量と気体・溶液の性質",
         "第5章": "第5章：化学反応式と量的関係",
         "第6章": "第6章：酸・塩基",
         "第7章": "第7章：酸化還元反応",
         "第8章": "第8章：電池・電気分解",
-        "第9章": "第9章：状態変化とエネルギー",
+        "第9章": "第9章：状態変化",
         "第10章": "第10章：固体の構造"
       };
 
