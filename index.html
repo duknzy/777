@@ -4,6 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>化学マスター：一問一答＆暗記単語帳</title>
+
+  <!-- PWA: マニフェスト・アイコン・テーマカラー（ホーム画面追加・オフライン起動対応） -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f172a">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="化学マスター">
   
   <!-- Google Fonts & Font Awesome Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -832,7 +841,18 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">4. 特別フィルタ</label>
+            <label class="form-label">4. 出題数</label>
+            <select id="quiz-count-select">
+              <option value="10">10問</option>
+              <option value="20" selected>20問</option>
+              <option value="30">30問</option>
+              <option value="50">50問</option>
+              <option value="all">条件に合う全問</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">5. 特別フィルタ</label>
             <div class="radio-grid">
               <input type="radio" id="filter-normal" name="quiz-filter" value="normal" checked>
               <label for="filter-normal">通常</label>
@@ -1116,11 +1136,12 @@
     /* ==========================================
        1. APP STATE & LOCALSTORAGE PERSISTENCE
        ========================================== */
-    const STORAGE_KEY = 'chem_master_user_data_v2';
+    const STORAGE_KEY = 'chem_master_user_data_v3';
+    const MASTERY_CAP = 2; // 連続でこの回数正解すると「習得」扱いになる
 
     let userData = {
       stars: {}, // { [qId]: true }
-      weak: {},  // { [qId]: count }
+      mastery: {}, // { [qId]: 0=間違えた直後 ... MASTERY_CAPで「習得」。キーが存在する=1度でも挑戦済み }
       history: {
         total: 0,
         correct: 0
@@ -1142,6 +1163,29 @@
     function saveUserData() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
       updateDashboardStats();
+    }
+
+    /* ==========================================
+       MASTERY TRACKING (連続正解で「習得」判定)
+       - キーが存在する = 一度でも挑戦した問題
+       - 値が MASTERY_CAP 以上 = 連続正解で習得済み
+       - 間違えると 0 にリセットされる（1回の正解だけでは弱点から外れない）
+       ========================================== */
+    function markCorrect(qId) {
+      const cur = userData.mastery[qId] || 0;
+      userData.mastery[qId] = Math.min(cur + 1, MASTERY_CAP);
+    }
+
+    function markWrong(qId) {
+      userData.mastery[qId] = 0;
+    }
+
+    function isWeak(qId) {
+      return userData.mastery[qId] !== undefined && userData.mastery[qId] < MASTERY_CAP;
+    }
+
+    function isAttempted(qId) {
+      return userData.mastery[qId] !== undefined;
     }
 
     /* ==========================================
@@ -1285,6 +1329,7 @@
       const diff = document.querySelector('input[name="quiz-diff"]:checked').value;
       const type = document.querySelector('input[name="quiz-type"]:checked').value;
       const filter = document.querySelector('input[name="quiz-filter"]:checked').value;
+      const countSel = document.getElementById('quiz-count-select').value;
 
       if (typeof quizQuestions === 'undefined' || !quizQuestions.length) {
         alert('quiz-data.js のデータが正常に読み込まれていません。');
@@ -1302,7 +1347,7 @@
       if (filter === 'star') {
         filtered = filtered.filter(q => userData.stars[q.id]);
       } else if (filter === 'weak') {
-        filtered = filtered.filter(q => (userData.weak[q.id] || 0) > 0);
+        filtered = filtered.filter(q => isWeak(q.id));
       }
 
       if (filtered.length === 0) {
@@ -1312,9 +1357,11 @@
 
       // Shuffle
       filtered.sort(() => Math.random() - 0.5);
-      
-      // Limit to 15 questions max per session
-      filtered = filtered.slice(0, 15);
+
+      // 選択した出題数に制限（「全問」以外は指定数まで）
+      if (countSel !== 'all') {
+        filtered = filtered.slice(0, parseInt(countSel, 10));
+      }
 
       quizState = {
         questions: filtered,
@@ -1383,7 +1430,7 @@
     document.getElementById('btn-judge-correct').addEventListener('click', () => {
       playSound('correct');
       const q = quizState.questions[quizState.currentIndex];
-      if (userData.weak[q.id]) userData.weak[q.id] = Math.max(0, userData.weak[q.id] - 1);
+      markCorrect(q.id);
       quizState.score++;
       userData.history.total++;
       userData.history.correct++;
@@ -1394,7 +1441,7 @@
     document.getElementById('btn-judge-wrong').addEventListener('click', () => {
       playSound('wrong');
       const q = quizState.questions[quizState.currentIndex];
-      userData.weak[q.id] = (userData.weak[q.id] || 0) + 1;
+      markWrong(q.id);
       quizState.missed.push(q);
       userData.history.total++;
       saveUserData();
@@ -1491,14 +1538,14 @@
             btn.classList.add('correct');
             btn.querySelector('i').className = 'fa-solid fa-circle-check';
             quizState.score++;
-            if (userData.weak[q.id]) userData.weak[q.id] = Math.max(0, userData.weak[q.id] - 1);
+            markCorrect(q.id);
             userData.history.correct++;
           } else {
             playSound('wrong');
             btn.classList.add('wrong');
             btn.querySelector('i').className = 'fa-solid fa-circle-xmark';
             quizState.missed.push(q);
-            userData.weak[q.id] = (userData.weak[q.id] || 0) + 1;
+            markWrong(q.id);
 
             // Highlight right answer
             allBtns.forEach(b => {
@@ -1636,7 +1683,7 @@
     document.getElementById('fc-btn-again').addEventListener('click', () => {
       playSound('wrong');
       const q = fcState.cards[fcState.currentIndex];
-      userData.weak[q.id] = (userData.weak[q.id] || 0) + 1;
+      markWrong(q.id);
       saveUserData();
       advanceFlashcard();
     });
@@ -1644,7 +1691,7 @@
     document.getElementById('fc-btn-master').addEventListener('click', () => {
       playSound('correct');
       const q = fcState.cards[fcState.currentIndex];
-      if (userData.weak[q.id]) userData.weak[q.id] = Math.max(0, userData.weak[q.id] - 1);
+      markCorrect(q.id);
       saveUserData();
       advanceFlashcard();
     });
@@ -1736,7 +1783,7 @@
       const starCount = Object.values(userData.stars).filter(Boolean).length;
       document.getElementById('stat-star-count').textContent = starCount;
 
-      const weakCount = Object.values(userData.weak).filter(v => v > 0).length;
+      const weakCount = quizQuestions.filter(q => isWeak(q.id)).length;
       document.getElementById('stat-weak-count').textContent = weakCount;
 
       // Chapter progress bars
@@ -1760,8 +1807,10 @@
       chapters.forEach(ch => {
         const qList = quizQuestions.filter(q => q.chapter === ch);
         const total = qList.length;
-        const weakInCh = qList.filter(q => (userData.weak[q.id] || 0) > 0).length;
-        const masteredInCh = total - weakInCh;
+        // 未着手（一度も挑戦していない）問題は「習得済み」に数えない
+        const attemptedInCh = qList.filter(q => isAttempted(q.id)).length;
+        const masteredInCh = qList.filter(q => isAttempted(q.id) && !isWeak(q.id)).length;
+        const untouchedInCh = total - attemptedInCh;
         const percent = total > 0 ? Math.round((masteredInCh / total) * 100) : 0;
 
         const item = document.createElement('div');
@@ -1774,6 +1823,9 @@
           <div class="ch-prog-bar">
             <div class="ch-prog-fill" style="width: ${percent}%;"></div>
           </div>
+          <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">
+            ${untouchedInCh > 0 ? `未着手 ${untouchedInCh}問 ・ ` : ''}弱点 ${qList.filter(q => isWeak(q.id)).length}問
+          </div>
         `;
         chContainer.appendChild(item);
       });
@@ -1781,7 +1833,7 @@
 
     document.getElementById('reset-data-btn').addEventListener('click', () => {
       if (confirm('学習履歴、★ブックマーク、弱点記録をすべて消去しますか？')) {
-        userData = { stars: {}, weak: {}, history: { total: 0, correct: 0 }, soundEnabled: true };
+        userData = { stars: {}, mastery: {}, history: { total: 0, correct: 0 }, soundEnabled: true };
         saveUserData();
         alert('データを初期化しました。');
       }
@@ -1794,6 +1846,17 @@
       soundBtn.innerHTML = userData.soundEnabled ? `<i class="fa-solid fa-volume-high"></i>` : `<i class="fa-solid fa-volume-xmark"></i>`;
       saveUserData();
     });
+
+    /* ==========================================
+       PWA: SERVICE WORKER登録（オフライン・ホーム画面追加対応）
+       ========================================== */
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch((e) => {
+          console.warn('Service Worker registration failed:', e);
+        });
+      });
+    }
 
     /* ==========================================
        INIT APP ON LOAD
